@@ -15,11 +15,25 @@ export default async function CustomerReviewsPage() {
     include: { worker: { select: { id: true, name: true } }, job: { select: { title: true } } },
     orderBy: { createdAt: 'desc' },
   })
+  const averageRating = reviews.length ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1) : '0.0'
 
   return (
     <div className="max-w-4xl">
         <Link href="/dashboard/customer" className="subtle-link inline-flex items-center gap-2">Back to dashboard</Link>
         <h1 className="page-title mt-3 mb-6">My reviews</h1>
+
+        {reviews.length > 0 && (
+          <div className="mb-6 grid gap-4 md:grid-cols-2">
+            <div className="muted-panel p-4">
+              <div className="kicker mb-1">Reviews submitted</div>
+              <div className="text-2xl font-extrabold tracking-tight text-earth-950">{reviews.length}</div>
+            </div>
+            <div className="muted-panel p-4">
+              <div className="kicker mb-1">Average rating given</div>
+              <div className="text-2xl font-extrabold tracking-tight text-earth-950">{averageRating}</div>
+            </div>
+          </div>
+        )}
 
         {reviews.length === 0 ? (
           <EmptyState title="No reviews submitted yet" description="Complete a job to leave a review for the worker you hired." />

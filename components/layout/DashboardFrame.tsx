@@ -37,26 +37,38 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
 export function DashboardFrame({ user, children }: DashboardFrameProps) {
   const pathname = usePathname()
   const items = navConfig[user.role]
+  const roleLabel = user.role === 'CUSTOMER' ? 'Customer workspace' : user.role === 'WORKER' ? 'Worker workspace' : 'Admin workspace'
 
   return (
     <div className="min-h-screen bg-earth-50">
       <Navbar user={user} />
       <div className="border-b border-earth-200 bg-white/85 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto px-4 py-3 md:px-6">
-          {items.map(({ icon: Icon, ...item }) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'inline-flex shrink-0 items-center gap-2 rounded-xl border border-earth-200 bg-white px-4 py-2.5 text-sm font-semibold text-earth-700 transition-colors hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700',
-                (pathname === item.href || (item.href !== '/dashboard/customer' && item.href !== '/dashboard/worker' && item.href !== '/dashboard/admin' && pathname.startsWith(item.href))) &&
-                  'border-brand-200 bg-brand-50 text-brand-700'
-              )}
-            >
-              <Icon size={15} />
-              {item.label}
-            </Link>
-          ))}
+        <div className="mx-auto w-full max-w-6xl px-4 py-4 md:px-6">
+          <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-earth-500">{roleLabel}</div>
+              <div className="mt-1 text-sm text-earth-700">Signed in as <span className="font-semibold text-earth-900">{user.name}</span></div>
+            </div>
+            <div className="inline-flex self-start rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-700">
+              {user.role}
+            </div>
+          </div>
+          <div className="flex gap-2 overflow-x-auto">
+            {items.map(({ icon: Icon, ...item }) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'inline-flex shrink-0 items-center gap-2 rounded-xl border border-earth-200 bg-white px-4 py-2.5 text-sm font-semibold text-earth-700 transition-colors hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700',
+                  (pathname === item.href || (item.href !== '/dashboard/customer' && item.href !== '/dashboard/worker' && item.href !== '/dashboard/admin' && pathname.startsWith(item.href))) &&
+                    'border-brand-200 bg-brand-50 text-brand-700 shadow-sm'
+                )}
+              >
+                <Icon size={15} />
+                {item.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
       <div className="page-shell">{children}</div>

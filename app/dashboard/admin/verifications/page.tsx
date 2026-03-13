@@ -4,6 +4,7 @@ import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { formatDate } from '@/lib/utils'
 import { VerificationActions } from './VerificationActions'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 export default async function AdminVerificationsPage() {
   const session = await getServerSession()
@@ -23,7 +24,7 @@ export default async function AdminVerificationsPage() {
       <h1 className="page-title mt-3 mb-6">Verification requests ({requests.length})</h1>
 
       {requests.length === 0 ? (
-        <div className="card text-center py-12 text-earth-500">No verification requests yet.</div>
+        <EmptyState title="No verification requests yet" description="Submitted worker verification requests will appear here for review." />
       ) : (
         <div className="space-y-4">
           {requests.map(request => (

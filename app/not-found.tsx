@@ -4,13 +4,15 @@ import { Navbar } from '@/components/layout/Navbar'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-earth-50">
       <Navbar user={null} />
-      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
-        <SearchX className="w-14 h-14 text-earth-300 mb-4" />
-        <h1 className="text-4xl font-display text-earth-900 mb-3">Page not found</h1>
-        <p className="text-earth-500 mb-8">We could not find what you were looking for.</p>
-        <Link href="/" className="btn-primary">Go Home</Link>
+      <div className="page-shell flex min-h-[70vh] items-center justify-center">
+        <div className="card max-w-lg text-center">
+          <SearchX className="mx-auto mb-4 h-14 w-14 text-earth-300" />
+          <h1 className="mb-3 text-4xl font-bold tracking-tight text-earth-900">Page not found</h1>
+          <p className="mb-8 text-earth-500">We could not find what you were looking for.</p>
+          <Link href="/" className="btn-primary">Go home</Link>
+        </div>
       </div>
     </div>
   )

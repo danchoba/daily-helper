@@ -63,6 +63,10 @@ export function NewJobForm({ categories }: { categories: Category[] }) {
         <p className="mt-1 text-sm text-earth-500">Workers are more likely to apply when the task, area, and timing are specific.</p>
       </div>
 
+      <div className="rounded-2xl border border-brand-100 bg-brand-50 p-4 text-sm text-brand-800">
+        Write the listing as if the worker has never seen the location or task before. Clear expectations usually produce stronger applications.
+      </div>
+
       {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 
       <div>

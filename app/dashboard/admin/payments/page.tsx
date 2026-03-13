@@ -15,6 +15,8 @@ export default async function AdminPaymentsPage() {
     },
     orderBy: { createdAt: 'desc' },
   })
+  const pendingPayments = payments.filter(payment => payment.status === 'PENDING').length
+  const connectionFees = payments.filter(payment => payment.type === 'CONNECTION_FEE').length
 
   return (
     <div>
@@ -25,6 +27,21 @@ export default async function AdminPaymentsPage() {
           <p className="mt-2 max-w-2xl text-sm leading-6 text-earth-500">
             Manual payment review affects verification approvals and customer contact unlocks. Check references carefully before approving.
           </p>
+        </div>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <div className="muted-panel p-4">
+            <div className="kicker mb-1">Pending review</div>
+            <div className="text-2xl font-extrabold tracking-tight text-earth-950">{pendingPayments}</div>
+          </div>
+          <div className="muted-panel p-4">
+            <div className="kicker mb-1">Connection fees</div>
+            <div className="text-2xl font-extrabold tracking-tight text-earth-950">{connectionFees}</div>
+          </div>
+          <div className="muted-panel p-4">
+            <div className="kicker mb-1">Total records</div>
+            <div className="text-2xl font-extrabold tracking-tight text-earth-950">{payments.length}</div>
+          </div>
         </div>
 
         {payments.length === 0 ? (

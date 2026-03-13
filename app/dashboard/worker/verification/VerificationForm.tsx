@@ -60,6 +60,10 @@ export function VerificationForm() {
         </p>
       </Alert>
 
+      <div className="rounded-2xl border border-earth-200 bg-white p-4 text-sm text-earth-600">
+        Use the exact payment reference from your transfer receipt. Reusing or guessing a reference will delay approval.
+      </div>
+
       <div className="card">
         <div className="kicker mb-2">Payment instructions</div>
         <h2 className="text-xl font-bold tracking-tight text-earth-950">Verification fee details</h2>

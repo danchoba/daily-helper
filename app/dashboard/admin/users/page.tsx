@@ -13,11 +13,29 @@ export default async function AdminUsersPage() {
     include: { workerProfile: { select: { trustedBadge: true, verificationStatus: true, jobsCompleted: true } } },
     orderBy: { createdAt: 'desc' },
   })
+  const workerCount = users.filter(user => user.role === 'WORKER').length
+  const trustedCount = users.filter(user => user.workerProfile?.trustedBadge).length
+  const pendingCount = users.filter(user => user.workerProfile?.verificationStatus === 'PENDING').length
 
   return (
     <div>
         <Link href="/dashboard/admin" className="subtle-link inline-flex items-center gap-2">Back to admin</Link>
         <h1 className="page-title mt-3 mb-6">Users ({users.length})</h1>
+
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <div className="muted-panel p-4">
+            <div className="kicker mb-1">Workers</div>
+            <div className="text-2xl font-extrabold tracking-tight text-earth-950">{workerCount}</div>
+          </div>
+          <div className="muted-panel p-4">
+            <div className="kicker mb-1">Trusted workers</div>
+            <div className="text-2xl font-extrabold tracking-tight text-earth-950">{trustedCount}</div>
+          </div>
+          <div className="muted-panel p-4">
+            <div className="kicker mb-1">Pending verification</div>
+            <div className="text-2xl font-extrabold tracking-tight text-earth-950">{pendingCount}</div>
+          </div>
+        </div>
 
         <div className="card overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">

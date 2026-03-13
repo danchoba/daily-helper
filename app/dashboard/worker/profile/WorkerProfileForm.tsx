@@ -62,8 +62,12 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
         <p className="mt-1 text-sm text-earth-500">A complete profile makes it easier for customers to trust your application.</p>
       </div>
 
+      <div className="rounded-2xl border border-brand-100 bg-brand-50 p-4 text-sm text-brand-800">
+        Focus on specific services, local area coverage, and the kind of work you reliably complete. This profile is part of your hiring signal.
+      </div>
+
       {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
-      {success && <div className="rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm text-sage-800">Your profile has been updated.</div>}
+      {success && <div className="rounded-xl border border-success-200 bg-success-50 p-4 text-sm text-success-800">Your profile has been updated.</div>}
 
       <div>
         <label className="label">Bio</label>

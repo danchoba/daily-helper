@@ -34,6 +34,7 @@ export default async function WorkerBrowseJobsPage({ searchParams }: PageProps) 
     }),
     prisma.category.findMany({ orderBy: { name: 'asc' } }),
   ])
+  const appliedCount = appliedJobIds.size
 
   return (
     <div>
@@ -44,9 +45,15 @@ export default async function WorkerBrowseJobsPage({ searchParams }: PageProps) 
         </div>
 
         <div className="surface-card mb-6 p-4 md:p-5">
-          <div className="mb-4">
-            <div className="text-sm font-semibold text-earth-900">{jobs.length} jobs currently open</div>
-            <div className="text-sm text-earth-500">Use the category filter to narrow the list and focus on relevant work.</div>
+          <div className="mb-4 grid gap-3 md:grid-cols-2">
+            <div>
+              <div className="text-sm font-semibold text-earth-900">{jobs.length} jobs currently open</div>
+              <div className="text-sm text-earth-500">Use the category filter to narrow the list and focus on relevant work.</div>
+            </div>
+            <div className="rounded-2xl border border-earth-200 bg-white px-4 py-3 text-sm">
+              <div className="kicker mb-1">Already applied</div>
+              <div className="font-semibold text-earth-900">{appliedCount} jobs</div>
+            </div>
           </div>
           <CategoryFilter categories={categories} />
         </div>

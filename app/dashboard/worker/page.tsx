@@ -15,6 +15,7 @@ export default async function WorkerDashboard() {
     prisma.jobApplication.count({ where: { workerId: session.id, status: 'PENDING' } }),
     prisma.job.count({ where: { status: 'OPEN' } }),
   ])
+  const profileCompleteness = [profile?.bio, profile?.area, profile?.servicesOffered?.length].filter(Boolean).length
 
   const stats = [
     {
@@ -67,6 +68,31 @@ export default async function WorkerDashboard() {
               Request verification
             </Link>
           )}
+        </div>
+
+        <div className="mb-8 grid gap-4 md:grid-cols-[1.2fr,0.8fr]">
+          <div className="card">
+            <div className="kicker mb-2">Readiness</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Profile and application health</h2>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="muted-panel p-4">
+                <div className="kicker mb-1">Profile completion</div>
+                <div className="text-2xl font-extrabold tracking-tight text-earth-950">{profileCompleteness}/3</div>
+              </div>
+              <div className="muted-panel p-4">
+                <div className="kicker mb-1">Pending decisions</div>
+                <div className="text-2xl font-extrabold tracking-tight text-earth-950">{pendingApps}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="kicker mb-2">Priority</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Strengthen trust signals</h2>
+            <p className="mt-2 text-sm leading-6 text-earth-500">
+              Customers are more likely to shortlist complete, verified profiles with clear service information.
+            </p>
+          </div>
         </div>
 
         {!profile?.bio && (

@@ -20,6 +20,7 @@ export default async function CustomerDashboard() {
       include: { category: true, customer: { select: { name: true } }, _count: { select: { applications: true } } },
     }),
   ])
+  const jobsWithApplicants = recentJobs.filter(job => (job._count?.applications || 0) > 0).length
 
   const stats = [
     {
@@ -59,6 +60,34 @@ export default async function CustomerDashboard() {
             <Plus size={16} />
             Post a job
           </Link>
+        </div>
+
+        <div className="mb-8 grid gap-4 md:grid-cols-[1.2fr,0.8fr]">
+          <div className="card">
+            <div className="kicker mb-2">Overview</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Hiring activity this week</h2>
+            <p className="mt-2 text-sm leading-6 text-earth-500">
+              Stay focused on open roles and jobs that already have applicant activity.
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="muted-panel p-4">
+                <div className="kicker mb-1">Open or active</div>
+                <div className="text-2xl font-extrabold tracking-tight text-earth-950">{activeJobs}</div>
+              </div>
+              <div className="muted-panel p-4">
+                <div className="kicker mb-1">With applicants</div>
+                <div className="text-2xl font-extrabold tracking-tight text-earth-950">{jobsWithApplicants}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="kicker mb-2">Recommended next step</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Keep job details specific</h2>
+            <p className="mt-2 text-sm leading-6 text-earth-500">
+              Clear budgets, locations, and descriptions improve worker response quality and reduce back-and-forth.
+            </p>
+          </div>
         </div>
 
         <div className="mb-8 grid gap-4 md:grid-cols-3">
