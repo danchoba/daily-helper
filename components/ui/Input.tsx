@@ -11,12 +11,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, hint, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && <label htmlFor={inputId} className="label">{label}</label>}
         <input
           ref={ref}
           id={inputId}
-          className={cn('input-field', error && 'border-red-400 focus:ring-red-400', className)}
+          className={cn('input', error && 'border-red-400 focus:border-red-500 focus:ring-red-100', className)}
           {...props}
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -37,13 +37,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, label, error, hint, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && <label htmlFor={inputId} className="label">{label}</label>}
         <textarea
           ref={ref}
           id={inputId}
           rows={4}
-          className={cn('input-field resize-none', error && 'border-red-400 focus:ring-red-400', className)}
+          className={cn('input resize-none', error && 'border-red-400 focus:border-red-500 focus:ring-red-100', className)}
           {...props}
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -66,13 +66,13 @@ interface SelectProps {
 
 export function Select({ label, error, options, value, onChange, placeholder, disabled }: SelectProps) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       {label && <label className="label">{label}</label>}
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
         disabled={disabled}
-        className={cn('input-field', error && 'border-red-400')}
+        className={cn('input', error && 'border-red-400 focus:border-red-500 focus:ring-red-100')}
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map(opt => (

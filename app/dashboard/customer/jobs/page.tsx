@@ -1,10 +1,10 @@
+import Link from 'next/link'
+import { Plus, SquareStack } from 'lucide-react'
+import { redirect } from 'next/navigation'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
-import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/layout/Navbar'
 import { JobCard } from '@/components/jobs/JobCard'
 import { EmptyState } from '@/components/ui/EmptyState'
-import Link from 'next/link'
 
 export default async function CustomerJobsPage() {
   const session = await getServerSession()
@@ -13,41 +13,49 @@ export default async function CustomerJobsPage() {
   const jobs = await prisma.job.findMany({
     where: { customerId: session.id },
     include: { category: true, customer: { select: { name: true } }, _count: { select: { applications: true } } },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
   })
 
   return (
-    <div className="min-h-screen">
-      <Navbar user={session} />
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+    <div>
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <Link href="/dashboard/customer" className="text-earth-500 text-sm hover:text-earth-700">← Dashboard</Link>
-            <h1 className="page-title mt-1">My Jobs</h1>
+            <Link href="/dashboard/customer" className="subtle-link inline-flex items-center gap-2">Back to dashboard</Link>
+            <div className="mt-3">
+              <div className="kicker mb-2">Customer jobs</div>
+              <h1 className="page-title">My jobs</h1>
+            </div>
           </div>
-          <Link href="/dashboard/customer/jobs/new" className="btn-primary">+ New Job</Link>
+          <Link href="/dashboard/customer/jobs/new" className="btn-primary">
+            <Plus size={16} />
+            New job
+          </Link>
         </div>
+
         {jobs.length === 0 ? (
-          <EmptyState icon="📋" title="No jobs yet" description="Post your first job to find local helpers."
-            action={<Link href="/dashboard/customer/jobs/new" className="btn-primary">Post a Job</Link>} />
+          <EmptyState
+            icon={<SquareStack size={22} />}
+            title="No jobs posted yet"
+            description="Create your first job to start receiving applications from local workers."
+            action={<Link href="/dashboard/customer/jobs/new" className="btn-primary">Post a job</Link>}
+          />
         ) : (
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             {jobs.map(job => (
-              <div key={job.id} className="relative">
+              <div key={job.id} className="space-y-3">
                 <JobCard job={job} showStatus />
-                <div className="px-2 pb-2 -mt-1">
-                  <div className="flex gap-2">
-                    <Link href={`/dashboard/customer/jobs/${job.id}/applicants`} className="btn-outline btn-sm flex-1 text-center text-xs">
-                      Applicants ({job._count.applications})
-                    </Link>
-                    <Link href={`/dashboard/customer/jobs/${job.id}/edit`} className="btn-outline btn-sm text-xs">Edit</Link>
-                  </div>
+                <div className="flex gap-3">
+                  <Link href={`/dashboard/customer/jobs/${job.id}/applicants`} className="btn-outline flex-1 text-center">
+                    Applicants ({job._count.applications})
+                  </Link>
+                  <Link href={`/dashboard/customer/jobs/${job.id}/edit`} className="btn-outline">
+                    Edit
+                  </Link>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
     </div>
   )
 }

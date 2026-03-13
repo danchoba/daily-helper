@@ -1,57 +1,59 @@
+import { PaymentStatus, PaymentType, VerificationStatus } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
 import { requireRole } from '@/lib/auth'
-import { PaymentType, PaymentStatus, VerificationStatus } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
+import { verificationRequestSchema } from '@/lib/validators'
 
 export async function POST(req: NextRequest) {
   try {
     const session = await requireRole(req, 'WORKER')
-    const { paymentReference, idDocumentUrl } = await req.json()
-    if (!paymentReference) {
-      return NextResponse.json({ error: 'Payment reference is required' }, { status: 400 })
-    }
+    const data = verificationRequestSchema.parse(await req.json())
 
-    // Check for existing pending/approved request
     const existing = await prisma.verificationRequest.findFirst({
-      where: { workerId: session.id, status: { in: [VerificationStatus.PENDING, VerificationStatus.APPROVED] } }
+      where: { workerId: session.id, status: { in: [VerificationStatus.PENDING, VerificationStatus.APPROVED] } },
     })
     if (existing) {
       return NextResponse.json({ error: 'You already have a pending or approved verification request' }, { status: 409 })
     }
 
-    // Create payment record
-    const payment = await prisma.payment.create({
-      data: {
-        userId: session.id,
-        type: PaymentType.VERIFICATION_FEE,
-        amount: 50,
-        currency: 'BWP',
-        reference: paymentReference.trim(),
-        status: PaymentStatus.PENDING,
-      }
+    const result = await prisma.$transaction(async (tx) => {
+      const payment = await tx.payment.create({
+        data: {
+          userId: session.id,
+          type: PaymentType.VERIFICATION_FEE,
+          amount: 50,
+          currency: 'BWP',
+          reference: data.paymentReference,
+          status: PaymentStatus.PENDING,
+        },
+      })
+
+      const request = await tx.verificationRequest.create({
+        data: {
+          workerId: session.id,
+          paymentReference: data.paymentReference,
+          paymentId: payment.id,
+          idDocumentUrl: data.idDocumentUrl || null,
+          status: VerificationStatus.PENDING,
+        },
+      })
+
+      await tx.workerProfile.update({
+        where: { userId: session.id },
+        data: { verificationStatus: VerificationStatus.PENDING },
+      })
+
+      return request
     })
 
-    // Create verification request
-    const verReq = await prisma.verificationRequest.create({
-      data: {
-        workerId: session.id,
-        paymentReference: paymentReference.trim(),
-        paymentId: payment.id,
-        idDocumentUrl: idDocumentUrl || null,
-        status: VerificationStatus.PENDING,
-      }
-    })
-
-    // Update worker profile verification status
-    await prisma.workerProfile.update({
-      where: { userId: session.id },
-      data: { verificationStatus: VerificationStatus.PENDING }
-    })
-
-    return NextResponse.json(verReq, { status: 201 })
-  } catch (err: any) {
-    if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (err.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json(result, { status: 201 })
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors[0]?.message || 'Invalid request' }, { status: 400 })
+    }
+    if (error instanceof Error && error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (error instanceof Error && error.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
@@ -62,11 +64,11 @@ export async function GET(req: NextRequest) {
     const request = await prisma.verificationRequest.findFirst({
       where: { workerId: session.id },
       orderBy: { submittedAt: 'desc' },
-      include: { payment: true }
+      include: { payment: true },
     })
     return NextResponse.json(request || null)
-  } catch (err: any) {
-    if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

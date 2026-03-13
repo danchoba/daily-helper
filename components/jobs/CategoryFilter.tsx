@@ -1,13 +1,17 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-interface Category { id: string; name: string; slug: string; icon?: string | null }
+interface Category {
+  id: string
+  name: string
+  slug: string
+  icon?: string | null
+}
 
 export function CategoryFilter({ categories }: { categories: Category[] }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentCategory = searchParams.get('category') || ''
-  const currentArea = searchParams.get('area') || ''
 
   const setFilter = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -17,20 +21,28 @@ export function CategoryFilter({ categories }: { categories: Category[] }) {
   }
 
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex gap-2 overflow-x-auto pb-1">
       <button
         onClick={() => setFilter('category', '')}
-        className={`badge cursor-pointer transition-all ${!currentCategory ? 'bg-brand-500 text-white' : 'bg-earth-100 text-earth-700 hover:bg-earth-200'}`}
+        className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors ${
+          !currentCategory
+            ? 'border-earth-900 bg-earth-900 text-white'
+            : 'border-earth-200 bg-white text-earth-700 hover:border-earth-300 hover:bg-earth-50'
+        }`}
       >
-        All
+        All categories
       </button>
       {categories.map(cat => (
         <button
           key={cat.id}
           onClick={() => setFilter('category', cat.slug)}
-          className={`badge cursor-pointer transition-all ${currentCategory === cat.slug ? 'bg-brand-500 text-white' : 'bg-earth-100 text-earth-700 hover:bg-earth-200'}`}
+          className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors ${
+            currentCategory === cat.slug
+              ? 'border-earth-900 bg-earth-900 text-white'
+              : 'border-earth-200 bg-white text-earth-700 hover:border-earth-300 hover:bg-earth-50'
+          }`}
         >
-          {cat.icon} {cat.name}
+          {cat.name}
         </button>
       ))}
     </div>

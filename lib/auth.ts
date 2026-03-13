@@ -1,12 +1,16 @@
-import { NextRequest } from 'next/server'
-import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
-import { prisma } from './prisma'
+import { SignJWT, jwtVerify } from 'jose'
 import { UserRole } from '@prisma/client'
+import { NextRequest } from 'next/server'
+import { prisma } from './prisma'
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.NEXTAUTH_SECRET || 'dev-secret-please-change'
-)
+function getJwtSecret() {
+  const secret = process.env.NEXTAUTH_SECRET
+  if (!secret) {
+    throw new Error('NEXTAUTH_SECRET is required')
+  }
+  return new TextEncoder().encode(secret)
+}
 
 export interface SessionUser {
   id: string
@@ -28,12 +32,12 @@ export async function createToken(user: SessionUser): Promise<string> {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
-    .sign(JWT_SECRET)
+    .sign(getJwtSecret())
 }
 
 export async function verifyToken(token: string): Promise<SessionUser | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
+    const { payload } = await jwtVerify(token, getJwtSecret())
     return payload as unknown as SessionUser
   } catch {
     return null

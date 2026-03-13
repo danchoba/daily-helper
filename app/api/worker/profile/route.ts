@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
 import { requireRole } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { workerProfileSchema } from '@/lib/validators'
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,8 +10,8 @@ export async function GET(req: NextRequest) {
     const profile = await prisma.workerProfile.findUnique({ where: { userId: session.id } })
     if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
     return NextResponse.json(profile)
-  } catch (err: any) {
-    if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
@@ -17,21 +19,31 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireRole(req, 'WORKER')
-    const { bio, area, servicesOffered, profilePhotoUrl } = await req.json()
+    const data = workerProfileSchema.parse(await req.json())
+
     const profile = await prisma.workerProfile.upsert({
       where: { userId: session.id },
       update: {
-        ...(bio !== undefined && { bio: bio.trim() }),
-        ...(area !== undefined && { area: area.trim() }),
-        ...(servicesOffered !== undefined && { servicesOffered }),
-        ...(profilePhotoUrl !== undefined && { profilePhotoUrl }),
+        ...(data.bio !== undefined && { bio: data.bio }),
+        ...(data.area !== undefined && { area: data.area }),
+        ...(data.servicesOffered !== undefined && { servicesOffered: data.servicesOffered }),
+        ...(data.profilePhotoUrl !== undefined && { profilePhotoUrl: data.profilePhotoUrl || null }),
       },
-      create: { userId: session.id, bio, area, servicesOffered: servicesOffered || [] }
+      create: {
+        userId: session.id,
+        bio: data.bio || null,
+        area: data.area || null,
+        servicesOffered: data.servicesOffered || [],
+        profilePhotoUrl: data.profilePhotoUrl || null,
+      },
     })
-    // Also update phone if provided
+
     return NextResponse.json(profile)
-  } catch (err: any) {
-    if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors[0]?.message || 'Invalid request' }, { status: 400 })
+    }
+    if (error instanceof Error && error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

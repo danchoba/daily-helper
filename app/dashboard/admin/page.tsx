@@ -1,8 +1,8 @@
+import Link from 'next/link'
+import { CreditCard, ShieldCheck, Users, BriefcaseBusiness } from 'lucide-react'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/layout/Navbar'
-import Link from 'next/link'
 
 export default async function AdminDashboard() {
   const session = await getServerSession()
@@ -12,51 +12,80 @@ export default async function AdminDashboard() {
     prisma.user.count(),
     prisma.job.count(),
     prisma.verificationRequest.count({ where: { status: 'PENDING' } }),
-    prisma.payment.count({ where: { status: 'PENDING' } })
+    prisma.payment.count({ where: { status: 'PENDING' } }),
   ])
 
+  const stats = [
+    {
+      label: 'Users',
+      value: totalUsers.toString(),
+      href: '/dashboard/admin/users',
+      icon: Users,
+      description: 'Customers and workers on the platform',
+    },
+    {
+      label: 'Jobs',
+      value: totalJobs.toString(),
+      href: '/dashboard/admin/jobs',
+      icon: BriefcaseBusiness,
+      description: 'Total jobs created across the marketplace',
+    },
+    {
+      label: 'Pending verifications',
+      value: pendingVerifications.toString(),
+      href: '/dashboard/admin/verifications',
+      icon: ShieldCheck,
+      description: 'Verification requests awaiting review',
+    },
+    {
+      label: 'Pending payments',
+      value: pendingPayments.toString(),
+      href: '/dashboard/admin/payments',
+      icon: CreditCard,
+      description: 'Manual payment checks that need attention',
+    },
+  ]
+
   return (
-    <div className="min-h-screen">
-      <Navbar user={session} />
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="page-title mb-2">Admin Dashboard</h1>
-        <p className="text-earth-500 mb-8">Manage users, jobs, verifications, and payments</p>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Total Users', value: totalUsers, href: '/dashboard/admin/users', icon: '👥', color: 'text-blue-600' },
-            { label: 'Total Jobs', value: totalJobs, href: '/dashboard/admin/jobs', icon: '📋', color: 'text-earth-700' },
-            { label: 'Pending Verifications', value: pendingVerifications, href: '/dashboard/admin/verifications', icon: '🪪', color: pendingVerifications > 0 ? 'text-orange-600' : 'text-earth-400' },
-            { label: 'Pending Payments', value: pendingPayments, href: '/dashboard/admin/payments', icon: '💳', color: pendingPayments > 0 ? 'text-red-600' : 'text-earth-400' },
-          ].map(item => (
-            <Link key={item.label} href={item.href} className="card hover:shadow-md transition-shadow text-center">
-              <div className="text-3xl mb-2">{item.icon}</div>
-              <div className={`text-3xl font-bold mb-1 ${item.color}`}>{item.value}</div>
-              <div className="text-xs text-earth-500">{item.label}</div>
-              {(item.label.includes('Pending') && (item.value as number) > 0) && (
-                <div className="mt-2"><span className="badge bg-orange-100 text-orange-700">Needs action</span></div>
-              )}
-            </Link>
-          ))}
+    <div>
+        <div className="mb-8">
+          <div className="kicker mb-2">Admin</div>
+          <h1 className="page-title">Operations dashboard</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-earth-500">
+            Review the high-risk queues first. Verification and payment actions affect trust and access across the platform.
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {[
-            { title: 'Manage Users', desc: 'View all customers and workers', href: '/dashboard/admin/users', icon: '👥' },
-            { title: 'Manage Jobs', desc: 'View and moderate all jobs', href: '/dashboard/admin/jobs', icon: '📋' },
-            { title: 'Verification Requests', desc: `${pendingVerifications} pending review`, href: '/dashboard/admin/verifications', icon: '🪪' },
-            { title: 'Payment Records', desc: `${pendingPayments} awaiting approval`, href: '/dashboard/admin/payments', icon: '💳' },
-          ].map(item => (
-            <Link key={item.title} href={item.href} className="card hover:shadow-md transition-shadow flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-earth-100 flex items-center justify-center text-2xl flex-shrink-0">{item.icon}</div>
-              <div>
-                <h3 className="font-semibold text-earth-900">{item.title}</h3>
-                <p className="text-earth-500 text-sm">{item.desc}</p>
+        <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {stats.map(({ icon: Icon, ...item }) => (
+            <Link key={item.label} href={item.href} className="surface-card p-5 transition-colors hover:border-earth-300 hover:bg-earth-50">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-earth-100 text-earth-900">
+                <Icon size={18} />
               </div>
+              <div className="stat-value">{item.value}</div>
+              <div className="mt-1 text-sm font-semibold text-earth-900">{item.label}</div>
+              <div className="mt-2 text-sm leading-6 text-earth-500">{item.description}</div>
             </Link>
           ))}
         </div>
-      </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Link href="/dashboard/admin/verifications" className="card transition-colors hover:border-earth-300 hover:bg-earth-50">
+            <div className="kicker mb-2">Priority queue</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Verification reviews</h2>
+            <p className="mt-2 text-sm leading-6 text-earth-600">
+              Approve or reject worker verification requests with clear operational context.
+            </p>
+          </Link>
+
+          <Link href="/dashboard/admin/payments" className="card transition-colors hover:border-earth-300 hover:bg-earth-50">
+            <div className="kicker mb-2">Priority queue</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Manual payment approvals</h2>
+            <p className="mt-2 text-sm leading-6 text-earth-600">
+              Validate references before unlocking worker contact details or verification status.
+            </p>
+          </Link>
+        </div>
     </div>
   )
 }

@@ -1,10 +1,13 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Daily Helper — Trusted Local Help in Botswana',
+  title: 'Daily Helper - Trusted Local Help in Botswana',
   description: 'Book trusted local help for cleaning, garden work, moving, plumbing, and more. Botswana\'s micro-gig marketplace.',
   manifest: '/manifest.json',
+}
+
+export const viewport: Viewport = {
   themeColor: '#ef9610',
 }
 

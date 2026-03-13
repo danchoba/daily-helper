@@ -1,44 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { requireRole } from '@/lib/auth'
 import { PaymentStatus, PaymentType } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { requireRole } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { adminPaymentActionSchema } from '@/lib/validators'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const session = await requireRole(req, 'ADMIN')
-    const { action, jobId, workerId } = await req.json()
+    await requireRole(req, 'ADMIN')
+    const data = adminPaymentActionSchema.parse(await req.json())
 
     const payment = await prisma.payment.findUnique({ where: { id: params.id } })
     if (!payment) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    const newStatus = action === 'approve' ? PaymentStatus.APPROVED : PaymentStatus.REJECTED
+    const newStatus = data.action === 'approve' ? PaymentStatus.APPROVED : PaymentStatus.REJECTED
 
-    await prisma.payment.update({
-      where: { id: params.id },
-      data: { status: newStatus, reviewedAt: new Date() }
-    })
-
-    // If connection fee approval, create contact unlock record
-    if (action === 'approve' && payment.type === PaymentType.CONNECTION_FEE && jobId && workerId) {
-      const existing = await prisma.contactUnlock.findFirst({
-        where: { paymentId: params.id }
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.update({
+        where: { id: params.id },
+        data: { status: newStatus, reviewedAt: new Date() },
       })
-      if (!existing) {
-        await prisma.contactUnlock.create({
+
+      if (data.action !== 'approve' || payment.type !== PaymentType.CONNECTION_FEE) {
+        return
+      }
+
+      if (!data.jobId || !data.workerId) {
+        throw new Error('Connection fee approvals require jobId and workerId')
+      }
+
+      const job = await tx.job.findUnique({ where: { id: data.jobId } })
+      if (!job || job.customerId !== payment.userId) {
+        throw new Error('Invalid job for this payment')
+      }
+
+      const application = await tx.jobApplication.findFirst({
+        where: { jobId: data.jobId, workerId: data.workerId },
+      })
+      if (!application) {
+        throw new Error('Worker has not applied to this job')
+      }
+
+      const existingUnlock = await tx.contactUnlock.findFirst({ where: { paymentId: params.id } })
+      if (!existingUnlock) {
+        await tx.contactUnlock.create({
           data: {
-            jobId,
+            jobId: data.jobId,
             customerId: payment.userId,
-            workerId,
+            workerId: data.workerId,
             paymentId: params.id,
-          }
+          },
         })
       }
-    }
+    })
 
     return NextResponse.json({ success: true })
-  } catch (err: any) {
-    if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (err.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors[0]?.message || 'Invalid request' }, { status: 400 })
+    }
+    if (error instanceof Error && error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (error instanceof Error && error.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 })
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

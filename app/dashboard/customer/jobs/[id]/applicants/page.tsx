@@ -1,11 +1,10 @@
+import Link from 'next/link'
+import { notFound, redirect } from 'next/navigation'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
-import { redirect, notFound } from 'next/navigation'
-import { Navbar } from '@/components/layout/Navbar'
-import Link from 'next/link'
 import { SelectApplicantButton } from './SelectApplicantButton'
 import { CompleteJobButton } from './CompleteJobButton'
-import { formatBWP, timeAgo } from '@/lib/utils'
+import { timeAgo } from '@/lib/utils'
 
 export default async function ApplicantsPage({ params }: { params: { id: string } }) {
   const session = await getServerSession()
@@ -17,96 +16,120 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
       category: true,
       applications: {
         include: {
-          worker: { include: { workerProfile: true } }
+          worker: { include: { workerProfile: true } },
         },
-        orderBy: { createdAt: 'asc' }
+        orderBy: { createdAt: 'asc' },
       },
-      contactUnlocks: { where: { customerId: session.id } }
-    }
+      contactUnlocks: { where: { customerId: session.id } },
+    },
   })
+
   if (!job) notFound()
 
-  const selectedApp = job.applications.find(a => a.status === 'SELECTED')
-  const unlockedWorkerIds = new Set(job.contactUnlocks.map(u => u.workerId))
+  const selectedApp = job.applications.find(application => application.status === 'SELECTED')
+  const unlockedWorkerIds = new Set(job.contactUnlocks.map(unlock => unlock.workerId))
 
   return (
-    <div className="min-h-screen">
-      <Navbar user={session} />
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <Link href="/dashboard/customer/jobs" className="text-earth-500 text-sm hover:text-earth-700">← My Jobs</Link>
-        <h1 className="page-title mt-2 mb-1">{job.title}</h1>
-        <p className="text-earth-500 mb-6 text-sm">{job.applications.length} applicant{job.applications.length !== 1 ? 's' : ''} · {job.status}</p>
+    <div className="max-w-4xl">
+        <Link href="/dashboard/customer/jobs" className="subtle-link inline-flex items-center gap-2">
+          Back to my jobs
+        </Link>
+
+        <div className="mb-6 mt-3">
+          <div className="kicker mb-2">Applicant review</div>
+          <h1 className="page-title">{job.title}</h1>
+          <p className="mt-2 text-sm leading-6 text-earth-500">
+            {job.applications.length} applicant{job.applications.length === 1 ? '' : 's'} · Current status: {job.status.replace(/_/g, ' ')}
+          </p>
+        </div>
 
         {job.status === 'IN_PROGRESS' && selectedApp && (
-          <div className="card bg-brand-50 border-brand-200 mb-6">
-            <h3 className="font-semibold text-brand-800 mb-2">Job in progress</h3>
-            <p className="text-brand-700 text-sm mb-4">You have selected <strong>{selectedApp.worker.name}</strong>. Once the job is done, mark it as completed.</p>
-            <CompleteJobButton jobId={job.id} workerId={selectedApp.workerId} />
+          <div className="mb-6 rounded-2xl border border-earth-200 bg-earth-50 p-5">
+            <h2 className="text-lg font-bold tracking-tight text-earth-900">Job in progress</h2>
+            <p className="mt-1 text-sm leading-6 text-earth-600">
+              You selected <strong>{selectedApp.worker.name}</strong>. When the job is finished, complete it here and leave a review.
+            </p>
+            <div className="mt-4">
+              <CompleteJobButton jobId={job.id} workerId={selectedApp.workerId} />
+            </div>
           </div>
         )}
 
         {job.applications.length === 0 ? (
-          <div className="card text-center py-12">
-            <div className="text-4xl mb-3">⏳</div>
-            <p className="font-semibold text-earth-700">No applications yet</p>
-            <p className="text-earth-500 text-sm mt-1">Workers will apply soon. Share your job to get more visibility.</p>
+          <div className="surface-card p-10 text-center">
+            <h2 className="text-lg font-bold tracking-tight text-earth-900">No applications yet</h2>
+            <p className="mt-2 text-sm text-earth-500">Workers will appear here as they apply for the job.</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {job.applications.map(app => {
-              const profile = app.worker.workerProfile
-              const isSelected = app.status === 'SELECTED'
-              const isUnlocked = unlockedWorkerIds.has(app.workerId)
+            {job.applications.map(application => {
+              const profile = application.worker.workerProfile
+              const isSelected = application.status === 'SELECTED'
+              const isUnlocked = unlockedWorkerIds.has(application.workerId)
 
               return (
-                <div key={app.id} className={`card ${isSelected ? 'border-brand-300 bg-brand-50/30' : ''}`}>
+                <div key={application.id} className={`card ${isSelected ? 'border-earth-400' : ''}`}>
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center text-lg font-bold text-brand-600 flex-shrink-0">
-                      {app.worker.name.charAt(0)}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-earth-900 text-base font-bold text-white">
+                      {application.worker.name.charAt(0)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <Link href={`/workers/${app.workerId}`} className="font-semibold text-earth-900 hover:text-brand-600">
-                          {app.worker.name}
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <Link href={`/workers/${application.workerId}`} className="text-base font-bold tracking-tight text-earth-950 hover:text-earth-700">
+                          {application.worker.name}
                         </Link>
-                        {profile?.trustedBadge && <span className="trusted-badge">✓ Trusted</span>}
-                        <span className={`badge text-xs ${
-                          app.status === 'SELECTED' ? 'bg-brand-100 text-brand-800' :
-                          app.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                          'bg-earth-100 text-earth-600'
-                        }`}>{app.status}</span>
+                        {profile?.trustedBadge && (
+                          <span className="rounded-full border border-sage-200 bg-sage-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-sage-800">
+                            Trusted
+                          </span>
+                        )}
+                        <span
+                          className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                            application.status === 'SELECTED'
+                              ? 'border border-earth-900 bg-earth-900 text-white'
+                              : application.status === 'REJECTED'
+                                ? 'border border-red-200 bg-red-50 text-red-700'
+                                : 'border border-earth-200 bg-earth-50 text-earth-600'
+                          }`}
+                        >
+                          {application.status}
+                        </span>
                       </div>
+
                       {profile && (
-                        <div className="flex items-center gap-3 text-xs text-earth-500 mb-2">
-                          {profile.averageRating > 0 && <span>⭐ {profile.averageRating}</span>}
-                          <span>{profile.jobsCompleted} jobs done</span>
-                          {profile.area && <span>📍 {profile.area}</span>}
+                        <div className="mb-3 flex flex-wrap gap-3 text-xs font-medium uppercase tracking-[0.08em] text-earth-500">
+                          {profile.averageRating > 0 && <span>{profile.averageRating.toFixed(1)} rating</span>}
+                          <span>{profile.jobsCompleted} completed jobs</span>
+                          {profile.area && <span>{profile.area}</span>}
                         </div>
                       )}
-                      <p className="text-earth-600 text-sm">{app.message}</p>
-                      <p className="text-xs text-earth-400 mt-2">{timeAgo(app.createdAt)}</p>
+
+                      <p className="text-sm leading-6 text-earth-700">{application.message}</p>
+                      <p className="mt-3 text-xs text-earth-400">{timeAgo(application.createdAt)}</p>
                     </div>
                   </div>
 
-                  {job.status === 'OPEN' && app.status === 'PENDING' && (
-                    <div className="mt-4 pt-4 border-t border-earth-100">
-                      <SelectApplicantButton jobId={job.id} applicationId={app.id} workerName={app.worker.name} />
+                  {job.status === 'OPEN' && application.status === 'PENDING' && (
+                    <div className="mt-4 border-t border-earth-200 pt-4">
+                      <SelectApplicantButton jobId={job.id} applicationId={application.id} workerName={application.worker.name} />
                     </div>
                   )}
 
                   {isSelected && (
-                    <div className="mt-4 pt-4 border-t border-earth-100">
+                    <div className="mt-4 border-t border-earth-200 pt-4">
                       {isUnlocked ? (
-                        <div className="bg-sage-50 border border-sage-200 rounded-xl p-3">
-                          <p className="text-sage-800 font-medium text-sm">📞 Contact unlocked</p>
-                          <p className="text-sage-700 text-sm mt-1">{app.worker.phoneNumber || 'No phone number on file'}</p>
+                        <div className="rounded-xl border border-sage-200 bg-sage-50 p-4">
+                          <p className="text-sm font-semibold text-sage-800">Contact unlocked</p>
+                          <p className="mt-1 text-sm text-sage-700">{application.worker.phoneNumber || 'No phone number on file'}</p>
                         </div>
                       ) : (
-                        <div className="bg-brand-50 border border-brand-200 rounded-xl p-3">
-                          <p className="text-brand-800 font-medium text-sm mb-2">Unlock contact to connect</p>
-                          <p className="text-brand-700 text-xs mb-3">Pay BWP 25 connection fee to reveal {app.worker.name}'s phone number</p>
-                          <Link href={`/dashboard/customer/jobs/${job.id}/unlock?workerId=${app.workerId}`} className="btn-primary btn-sm">
-                            Unlock Contact — BWP 25
+                        <div className="rounded-xl border border-earth-200 bg-earth-50 p-4">
+                          <p className="text-sm font-semibold text-earth-900">Unlock contact details</p>
+                          <p className="mt-1 text-sm leading-6 text-earth-600">
+                            Pay the BWP 25 connection fee to reveal {application.worker.name}&rsquo;s phone number and coordinate directly.
+                          </p>
+                          <Link href={`/dashboard/customer/jobs/${job.id}/unlock?workerId=${application.workerId}`} className="btn-primary mt-3">
+                            Unlock contact
                           </Link>
                         </div>
                       )}
@@ -117,7 +140,6 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
             })}
           </div>
         )}
-      </div>
     </div>
   )
 }

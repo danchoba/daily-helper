@@ -1,10 +1,9 @@
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
-import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/layout/Navbar'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { appStatusLabel, statusColor, timeAgo, formatBWP } from '@/lib/utils'
-import Link from 'next/link'
+import { appStatusLabel, formatBWP, statusColor, timeAgo } from '@/lib/utils'
 
 export default async function WorkerApplicationsPage() {
   const session = await getServerSession()
@@ -14,47 +13,63 @@ export default async function WorkerApplicationsPage() {
     where: { workerId: session.id },
     include: {
       job: {
-        include: { category: true, customer: { select: { name: true } } }
-      }
+        include: { category: true, customer: { select: { name: true } } },
+      },
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
   })
 
   return (
-    <div className="min-h-screen">
-      <Navbar user={session} />
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <Link href="/dashboard/worker" className="text-earth-500 text-sm">← Dashboard</Link>
-        <h1 className="page-title mt-2 mb-6">My Applications</h1>
+    <div className="max-w-4xl">
+        <Link href="/dashboard/worker" className="subtle-link inline-flex items-center gap-2">Back to dashboard</Link>
+        <div className="mb-6 mt-3">
+          <div className="kicker mb-2">Applications</div>
+          <h1 className="page-title">My applications</h1>
+        </div>
+
         {applications.length === 0 ? (
-          <EmptyState icon="📋" title="No applications yet" description="Browse open jobs and apply to start working."
-            action={<Link href="/dashboard/worker/jobs" className="btn-primary">Browse Jobs</Link>} />
+          <EmptyState
+            title="No applications submitted yet"
+            description="Browse the open jobs list and apply to opportunities that match your services and area."
+            action={<Link href="/dashboard/worker/jobs" className="btn-primary">Browse jobs</Link>}
+          />
         ) : (
           <div className="space-y-4">
-            {applications.map(app => (
-              <div key={app.id} className="card">
-                <div className="flex items-start justify-between gap-3 mb-3">
+            {applications.map(application => (
+              <div key={application.id} className="card">
+                <div className="flex flex-col gap-3 border-b border-earth-200 pb-4 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <Link href={`/jobs/${app.jobId}`} className="font-semibold text-earth-900 hover:text-brand-600">{app.job.title}</Link>
-                    <p className="text-xs text-earth-500 mt-0.5">📍 {app.job.area} · {app.job.category.name}</p>
+                    <Link href={`/jobs/${application.jobId}`} className="text-lg font-bold tracking-tight text-earth-950 hover:text-earth-700">
+                      {application.job.title}
+                    </Link>
+                    <p className="mt-1 text-sm text-earth-500">
+                      {application.job.area} · {application.job.category.name} · {application.job.customer.name}
+                    </p>
                   </div>
-                  <span className={`badge ${statusColor(app.status)} flex-shrink-0`}>{appStatusLabel(app.status)}</span>
+                  <span className={`badge ${statusColor(application.status)}`}>
+                    {appStatusLabel(application.status)}
+                  </span>
                 </div>
-                <p className="text-earth-600 text-sm mb-3">"{app.message}"</p>
-                <div className="flex items-center justify-between text-xs text-earth-400">
-                  <span>Budget: {formatBWP(app.job.budget)}</span>
-                  <span>Applied {timeAgo(app.createdAt)}</span>
+
+                <div className="py-4">
+                  <div className="kicker mb-2">Your message</div>
+                  <p className="text-sm leading-6 text-earth-700">{application.message}</p>
                 </div>
-                {app.status === 'SELECTED' && (
-                  <div className="mt-3 pt-3 border-t border-earth-100">
-                    <span className="text-sage-700 font-medium text-sm">🎉 You were selected for this job! The customer will contact you shortly.</span>
+
+                <div className="flex flex-col gap-2 border-t border-earth-200 pt-4 text-sm text-earth-500 md:flex-row md:items-center md:justify-between">
+                  <span>Budget: <span className="font-semibold text-earth-900">{formatBWP(application.job.budget)}</span></span>
+                  <span>Applied {timeAgo(application.createdAt)}</span>
+                </div>
+
+                {application.status === 'SELECTED' && (
+                  <div className="mt-4 rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm text-sage-800">
+                    You have been selected for this job. The customer can now unlock your contact details to coordinate directly.
                   </div>
                 )}
               </div>
             ))}
           </div>
         )}
-      </div>
     </div>
   )
 }

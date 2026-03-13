@@ -1,6 +1,6 @@
 'use client'
-import { useState } from 'react'
 import Link from 'next/link'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
@@ -14,18 +14,23 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     setLoading(true)
+
     try {
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error || 'Sign in failed'); return }
-      const role = data.role
-      if (role === 'ADMIN') router.push('/dashboard/admin')
-      else if (role === 'WORKER') router.push('/dashboard/worker')
+      if (!res.ok) {
+        setError(data.error || 'Sign in failed')
+        return
+      }
+
+      if (data.role === 'ADMIN') router.push('/dashboard/admin')
+      else if (data.role === 'WORKER') router.push('/dashboard/worker')
       else router.push('/dashboard/customer')
+
       router.refresh()
     } catch {
       setError('Something went wrong. Please try again.')
@@ -35,43 +40,54 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-earth-50 flex flex-col">
-      <div className="flex items-center justify-center p-4 pt-8">
-        <Link href="/" className="text-2xl font-display">
-          <span className="text-brand-600">Daily</span>
-          <span className="text-earth-800"> Helper</span>
+    <div className="min-h-screen bg-earth-50">
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-8 md:px-6 md:py-12">
+        <Link href="/" className="mb-8 flex items-center gap-3 self-center md:self-start">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-earth-900 text-sm font-extrabold uppercase tracking-[0.14em] text-white">
+            DH
+          </span>
+          <div>
+            <div className="text-sm font-extrabold uppercase tracking-[0.14em] text-earth-900">Daily Helper</div>
+            <div className="text-xs text-earth-500">Professional local marketplace</div>
+          </div>
         </Link>
-      </div>
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
-        <div className="card w-full max-w-sm">
-          <h1 className="text-2xl font-display text-earth-900 mb-2">Welcome back</h1>
-          <p className="text-earth-500 text-sm mb-6">Sign in to your account</p>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 mb-4 text-sm">{error}</div>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label">Email address</label>
-              <input type="email" className="input" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@example.com" />
-            </div>
-            <div>
-              <label className="label">Password</label>
-              <input type="password" className="input" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" />
-            </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading ? 'Signing in…' : 'Sign In'}
-            </button>
-          </form>
-          <p className="text-center text-sm text-earth-500 mt-6">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-brand-600 font-medium hover:underline">Sign up</Link>
-          </p>
-          <div className="mt-6 pt-4 border-t border-earth-100">
-            <p className="text-xs text-earth-400 text-center font-medium mb-2">Demo accounts</p>
-            <div className="space-y-1 text-xs text-earth-500">
-              <div>Admin: admin@dailyhelper.bw / admin123</div>
-              <div>Customer: thabo@example.com / password123</div>
-              <div>Worker: kgosi@example.com / password123</div>
+
+        <div className="grid flex-1 items-center gap-8 md:grid-cols-[1fr,440px]">
+          <div className="hidden md:block">
+            <div className="kicker mb-2">Sign in</div>
+            <h1 className="page-title">Access your dashboard and keep work moving.</h1>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-earth-600">
+              Customers manage jobs and applicants here. Workers track applications, profiles, and verification in one place.
+            </p>
+          </div>
+
+          <div className="card w-full">
+            <h1 className="text-2xl font-bold tracking-tight text-earth-950">Welcome back</h1>
+            <p className="mt-2 text-sm text-earth-500">Sign in to continue to your Daily Helper account.</p>
+            {error && <div className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div>
+                <label className="label">Email address</label>
+                <input type="email" className="input" value={email} onChange={(event) => setEmail(event.target.value)} required placeholder="you@example.com" />
+              </div>
+              <div>
+                <label className="label">Password</label>
+                <input type="password" className="input" value={password} onChange={(event) => setPassword(event.target.value)} required placeholder="Enter your password" />
+              </div>
+              <button type="submit" disabled={loading} className="btn-primary w-full">
+                {loading ? 'Signing in...' : 'Sign in'}
+              </button>
+            </form>
+            <p className="mt-6 text-center text-sm text-earth-500">
+              Do not have an account? <Link href="/signup" className="font-semibold text-earth-900 hover:underline">Create one</Link>
+            </p>
+            <div className="mt-6 rounded-2xl border border-earth-200 bg-earth-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-earth-500">Demo accounts</p>
+              <div className="mt-3 space-y-1 text-sm text-earth-600">
+                <div>Admin: admin@dailyhelper.bw / admin123</div>
+                <div>Customer: thabo@example.com / password123</div>
+                <div>Worker: kgosi@example.com / password123</div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { formatBWP, timeAgo, urgencyLabel, urgencyColor, jobStatusLabel, statusColor } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
+import { formatBWP, timeAgo, urgencyLabel, urgencyColor, jobStatusLabel, statusColor } from '@/lib/utils'
+import { BriefcaseBusiness, Clock3, MapPin, Users } from 'lucide-react'
 
 interface JobCardProps {
   job: {
@@ -21,33 +22,50 @@ interface JobCardProps {
 
 export function JobCard({ job, showStatus }: JobCardProps) {
   return (
-    <Link href={`/jobs/${job.id}`}>
-      <div className="card hover:shadow-md hover:border-earth-200 transition-all duration-200 cursor-pointer group">
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">{job.category.icon || '🛠️'}</span>
-            <span className="text-xs font-medium text-earth-500">{job.category.name}</span>
+    <Link href={`/jobs/${job.id}`} className="block">
+      <div className="card h-full transition-all duration-150 hover:-translate-y-0.5 hover:border-earth-300 hover:shadow-md">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-earth-500">
+              <BriefcaseBusiness size={14} />
+              {job.category.name}
+            </div>
+            <h3 className="line-clamp-2 text-lg font-bold tracking-tight text-earth-950">{job.title}</h3>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <span className={`badge ${urgencyColor(job.urgency)}`}>{urgencyLabel(job.urgency)}</span>
-            {showStatus && (
-              <span className={`badge ${statusColor(job.status)}`}>{jobStatusLabel(job.status)}</span>
-            )}
+          <div className="flex flex-col items-end gap-2">
+            <Badge className={urgencyColor(job.urgency)}>{urgencyLabel(job.urgency)}</Badge>
+            {showStatus && <Badge className={statusColor(job.status)}>{jobStatusLabel(job.status)}</Badge>}
           </div>
         </div>
-        <h3 className="font-semibold text-earth-900 text-base mb-2 group-hover:text-brand-600 transition-colors line-clamp-2">{job.title}</h3>
-        <p className="text-earth-500 text-sm mb-4 line-clamp-2">{job.description}</p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 text-sm text-earth-500">
-            <span className="flex items-center gap-1">📍 {job.area}</span>
-            {job._count != null && (
-              <span className="flex items-center gap-1">👤 {job._count.applications} applied</span>
-            )}
+
+        <p className="mb-5 line-clamp-3 text-sm leading-6 text-earth-600">{job.description}</p>
+
+        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-earth-200 bg-earth-50 p-3 text-sm">
+          <div>
+            <div className="kicker mb-1">Budget</div>
+            <div className="font-semibold text-earth-900">{formatBWP(job.budget)}</div>
           </div>
-          <div className="text-right">
-            <div className="font-bold text-earth-900">{formatBWP(job.budget)}</div>
-            <div className="text-xs text-earth-400">{timeAgo(job.createdAt)}</div>
+          <div>
+            <div className="kicker mb-1">Posted</div>
+            <div className="font-semibold text-earth-900">{timeAgo(job.createdAt)}</div>
           </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4 text-sm text-earth-500">
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin size={15} />
+            {job.area}
+          </span>
+          {job._count != null && (
+            <span className="inline-flex items-center gap-1.5">
+              <Users size={15} />
+              {job._count.applications} applicant{job._count.applications === 1 ? '' : 's'}
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1.5">
+            <Clock3 size={15} />
+            {job.customer.name}
+          </span>
         </div>
       </div>
     </Link>

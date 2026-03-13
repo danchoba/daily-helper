@@ -1,3 +1,5 @@
+export { cn } from './cn'
+
 export function formatBWP(amount: number | null | undefined): string {
   if (amount == null) return 'Negotiable'
   return `BWP ${amount.toFixed(0)}`
@@ -24,6 +26,8 @@ export function timeAgo(date: Date | string): string {
   return formatDate(date)
 }
 
+export const formatRelativeTime = timeAgo
+
 export function urgencyLabel(urgency: string): string {
   const map: Record<string, string> = {
     LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High', URGENT: 'Urgent'
@@ -33,7 +37,7 @@ export function urgencyLabel(urgency: string): string {
 
 export function urgencyColor(urgency: string): string {
   const map: Record<string, string> = {
-    LOW: 'bg-sage-100 text-sage-800',
+    LOW: 'bg-success-100 text-success-800',
     MEDIUM: 'bg-brand-100 text-brand-800',
     HIGH: 'bg-orange-100 text-orange-800',
     URGENT: 'bg-red-100 text-red-800',
@@ -43,13 +47,13 @@ export function urgencyColor(urgency: string): string {
 
 export function statusColor(status: string): string {
   const map: Record<string, string> = {
-    OPEN: 'bg-sage-100 text-sage-800',
+    OPEN: 'bg-success-100 text-success-800',
     IN_PROGRESS: 'bg-brand-100 text-brand-800',
     COMPLETED: 'bg-blue-100 text-blue-800',
     CANCELLED: 'bg-red-100 text-red-800',
     CLOSED: 'bg-gray-100 text-gray-800',
     PENDING: 'bg-yellow-100 text-yellow-800',
-    APPROVED: 'bg-green-100 text-green-800',
+    APPROVED: 'bg-success-100 text-success-800',
     REJECTED: 'bg-red-100 text-red-800',
     SELECTED: 'bg-blue-100 text-blue-800',
     WITHDRAWN: 'bg-gray-100 text-gray-800',

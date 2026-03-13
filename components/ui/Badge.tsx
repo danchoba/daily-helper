@@ -8,8 +8,8 @@ interface BadgeProps {
 
 const variantMap: Record<string, string> = {
   default: 'bg-earth-100 text-earth-700',
-  trusted: 'bg-brand-100 text-brand-800',
-  success: 'bg-sage-100 text-sage-800',
+  trusted: 'bg-sage-100 text-sage-800',
+  success: 'bg-success-100 text-success-800',
   warning: 'bg-yellow-100 text-yellow-800',
   danger: 'bg-red-100 text-red-800',
   info: 'bg-blue-100 text-blue-800',
@@ -22,4 +22,24 @@ export function Badge({ children, variant = 'default', className }: BadgeProps) 
       {children}
     </span>
   )
+}
+
+export function TrustedBadge({ children = 'Trusted' }: { children?: React.ReactNode }) {
+  return <Badge variant="trusted">{children}</Badge>
+}
+
+export function JobStatusBadge({ status }: { status: string }) {
+  const normalizedStatus = status.toUpperCase()
+  const variant =
+    normalizedStatus === 'OPEN'
+      ? 'success'
+      : normalizedStatus === 'IN_PROGRESS'
+        ? 'warning'
+        : normalizedStatus === 'COMPLETED'
+          ? 'info'
+          : normalizedStatus === 'CANCELLED'
+            ? 'danger'
+            : 'neutral'
+
+  return <Badge variant={variant}>{normalizedStatus.replace(/_/g, ' ')}</Badge>
 }

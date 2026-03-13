@@ -1,8 +1,9 @@
+import Link from 'next/link'
+import { BadgeCheck, BriefcaseBusiness, ClipboardList, FileCheck2, UserRound } from 'lucide-react'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
-import { Navbar } from '@/components/layout/Navbar'
-import Link from 'next/link'
+import { Badge } from '@/components/ui/Badge'
 
 export default async function WorkerDashboard() {
   const session = await getServerSession()
@@ -12,68 +13,121 @@ export default async function WorkerDashboard() {
   const [profile, pendingApps, openJobs] = await Promise.all([
     prisma.workerProfile.findUnique({ where: { userId: session.id } }),
     prisma.jobApplication.count({ where: { workerId: session.id, status: 'PENDING' } }),
-    prisma.job.count({ where: { status: 'OPEN' } })
+    prisma.job.count({ where: { status: 'OPEN' } }),
   ])
 
+  const stats = [
+    {
+      label: 'Open jobs',
+      value: openJobs.toString(),
+      href: '/dashboard/worker/jobs',
+      icon: BriefcaseBusiness,
+      description: 'Browse available work in the marketplace',
+    },
+    {
+      label: 'Pending applications',
+      value: pendingApps.toString(),
+      href: '/dashboard/worker/applications',
+      icon: ClipboardList,
+      description: 'Track the jobs you have applied for',
+    },
+    {
+      label: 'Profile',
+      value: profile?.bio ? 'Complete' : 'Needs update',
+      href: '/dashboard/worker/profile',
+      icon: UserRound,
+      description: 'Keep your profile clear and credible',
+    },
+    {
+      label: 'Verification',
+      value: profile?.verificationStatus || 'NONE',
+      href: '/dashboard/worker/verification',
+      icon: BadgeCheck,
+      description: 'Strengthen trust with a verified badge',
+    },
+  ]
+
   return (
-    <div className="min-h-screen">
-      <Navbar user={session} />
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="flex items-start justify-between mb-8">
+    <div>
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="page-title">Welcome, {session.name.split(' ')[0]}!</h1>
-            <p className="text-earth-500 mt-1">Find jobs and grow your reputation</p>
+            <div className="kicker mb-2">Worker dashboard</div>
+            <h1 className="page-title">Welcome, {session.name.split(' ')[0]}</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-earth-500">
+              Keep your profile current, monitor application outcomes, and build trust through verification and completed work.
+            </p>
           </div>
           {profile?.trustedBadge ? (
-            <span className="trusted-badge text-base px-4 py-2">✓ Trusted Worker</span>
+            <Badge className="border-sage-200 bg-sage-100 px-4 py-2 text-sage-800">
+              <FileCheck2 size={14} />
+              Trusted worker
+            </Badge>
           ) : (
-            <Link href="/dashboard/worker/verification" className="btn-outline btn-sm">Get Trusted Badge</Link>
+            <Link href="/dashboard/worker/verification" className="btn-outline">
+              Request verification
+            </Link>
           )}
         </div>
 
         {!profile?.bio && (
-          <div className="card bg-brand-50 border-brand-200 mb-6 flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-brand-800">Complete your profile</p>
-              <p className="text-brand-700 text-sm">Add your bio, area, and services to attract more jobs.</p>
-            </div>
-            <Link href="/dashboard/worker/profile" className="btn-primary btn-sm flex-shrink-0">Complete Profile</Link>
+          <div className="mb-6 rounded-2xl border border-earth-200 bg-earth-50 p-5">
+            <h2 className="text-lg font-bold tracking-tight text-earth-900">Complete your profile</h2>
+            <p className="mt-1 text-sm text-earth-600">
+              Add your bio, services, and operating area so customers can understand what you do before they shortlist you.
+            </p>
+            <Link href="/dashboard/worker/profile" className="btn-primary mt-4">
+              Finish profile
+            </Link>
           </div>
         )}
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Open Jobs', value: openJobs, href: '/dashboard/worker/jobs', icon: '🔍' },
-            { label: 'My Applications', value: pendingApps + ' pending', href: '/dashboard/worker/applications', icon: '📋' },
-            { label: 'My Profile', value: '→', href: '/dashboard/worker/profile', icon: '👤' },
-            { label: 'Verification', value: profile?.verificationStatus || 'NONE', href: '/dashboard/worker/verification', icon: '🪪' },
-          ].map(item => (
-            <Link key={item.label} href={item.href} className="card hover:shadow-md transition-shadow text-center">
-              <div className="text-3xl mb-2">{item.icon}</div>
-              <div className="text-base font-bold text-earth-900 mb-1">{item.value}</div>
-              <div className="text-xs text-earth-500">{item.label}</div>
+        <div className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {stats.map(({ icon: Icon, ...item }) => (
+            <Link key={item.label} href={item.href} className="surface-card p-5 transition-colors hover:border-earth-300 hover:bg-earth-50">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-earth-100 text-earth-900">
+                <Icon size={18} />
+              </div>
+              <div className="stat-value text-xl">{item.value}</div>
+              <div className="mt-1 text-sm font-semibold text-earth-900">{item.label}</div>
+              <div className="mt-2 text-sm leading-6 text-earth-500">{item.description}</div>
             </Link>
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-4 md:grid-cols-2">
           <div className="card">
-            <h3 className="font-semibold text-earth-800 mb-2">Rating</h3>
-            <div className="text-3xl font-bold text-brand-600 mb-1">
-              {profile?.averageRating ? `⭐ ${profile.averageRating}` : '—'}
+            <div className="kicker mb-2">Performance</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Your work history</h2>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="muted-panel p-4">
+                <div className="kicker mb-1">Rating</div>
+                <div className="font-semibold text-earth-900">
+                  {profile?.averageRating ? profile.averageRating.toFixed(1) : 'Not rated yet'}
+                </div>
+              </div>
+              <div className="muted-panel p-4">
+                <div className="kicker mb-1">Completed jobs</div>
+                <div className="font-semibold text-earth-900">{profile?.jobsCompleted || 0}</div>
+              </div>
             </div>
-            <p className="text-earth-500 text-sm">{profile?.jobsCompleted || 0} jobs completed</p>
           </div>
+
           <div className="card">
-            <h3 className="font-semibold text-earth-800 mb-2">Quick Links</h3>
-            <div className="space-y-2">
-              <Link href="/dashboard/worker/jobs" className="block text-brand-600 hover:underline text-sm">→ Browse open jobs</Link>
-              <Link href="/dashboard/worker/applications" className="block text-brand-600 hover:underline text-sm">→ View my applications</Link>
-              <Link href="/dashboard/worker/profile" className="block text-brand-600 hover:underline text-sm">→ Edit my profile</Link>
+            <div className="kicker mb-2">Next steps</div>
+            <h2 className="text-xl font-bold tracking-tight text-earth-950">Recommended actions</h2>
+            <div className="mt-4 space-y-3 text-sm text-earth-600">
+              <Link href="/dashboard/worker/jobs" className="block rounded-xl border border-earth-200 px-4 py-3 font-medium text-earth-800 hover:bg-earth-50">
+                Browse current open jobs
+              </Link>
+              <Link href="/dashboard/worker/applications" className="block rounded-xl border border-earth-200 px-4 py-3 font-medium text-earth-800 hover:bg-earth-50">
+                Review your application statuses
+              </Link>
+              <Link href="/dashboard/worker/profile" className="block rounded-xl border border-earth-200 px-4 py-3 font-medium text-earth-800 hover:bg-earth-50">
+                Update your profile details
+              </Link>
             </div>
           </div>
         </div>
-      </div>
     </div>
   )
 }

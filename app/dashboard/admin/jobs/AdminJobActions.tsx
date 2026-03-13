@@ -12,19 +12,25 @@ export function AdminJobActions({ jobId, currentStatus }: { jobId: string; curre
       await fetch(`/api/admin/jobs/${jobId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       })
       router.refresh()
-    } finally { setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="flex gap-2 flex-shrink-0">
+    <div className="flex gap-2 md:flex-col">
       {currentStatus === 'OPEN' && (
-        <button onClick={() => setStatus('CLOSED')} disabled={loading} className="btn-outline btn-sm text-xs">Close</button>
+        <button onClick={() => setStatus('CLOSED')} disabled={loading} className="btn-outline btn-sm">
+          Close
+        </button>
       )}
       {currentStatus !== 'CANCELLED' && (
-        <button onClick={() => setStatus('CANCELLED')} disabled={loading} className="btn-danger btn-sm text-xs">Cancel</button>
+        <button onClick={() => setStatus('CANCELLED')} disabled={loading} className="btn-danger btn-sm">
+          Cancel
+        </button>
       )}
     </div>
   )

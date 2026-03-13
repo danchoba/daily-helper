@@ -1,9 +1,11 @@
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { MapPin, ShieldCheck, Star } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from '@/lib/session'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import { Badge } from '@/components/ui/Badge'
 import { formatDate } from '@/lib/utils'
 
 export default async function WorkerProfilePage({ params }: { params: { id: string } }) {
@@ -15,10 +17,11 @@ export default async function WorkerProfilePage({ params }: { params: { id: stri
       reviewsReceived: {
         include: { customer: { select: { name: true } } },
         orderBy: { createdAt: 'desc' },
-        take: 10
-      }
-    }
+        take: 10,
+      },
+    },
   })
+
   if (!user || !user.workerProfile) notFound()
 
   const profile = user.workerProfile
@@ -26,46 +29,63 @@ export default async function WorkerProfilePage({ params }: { params: { id: stri
   return (
     <div className="min-h-screen">
       <Navbar user={session} />
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        <Link href="/jobs" className="text-earth-500 hover:text-earth-700 text-sm mb-6 inline-flex items-center gap-1">← Back</Link>
+      <div className="page-shell max-w-4xl">
+        <Link href="/jobs" className="subtle-link inline-flex items-center gap-2">
+          Back to jobs
+        </Link>
 
-        <div className="card mb-6">
-          <div className="flex items-start gap-5">
-            <div className="w-20 h-20 rounded-2xl bg-brand-100 flex items-center justify-center text-3xl font-bold text-brand-600 flex-shrink-0">
+        <div className="card mt-4">
+          <div className="flex flex-col gap-5 border-b border-earth-200 pb-5 md:flex-row">
+            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-earth-900 text-3xl font-bold text-white">
               {user.name.charAt(0)}
             </div>
             <div className="flex-1">
-              <div className="flex items-center gap-3 flex-wrap mb-2">
-                <h1 className="text-2xl font-display text-earth-900">{user.name}</h1>
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <h1 className="text-3xl font-extrabold tracking-tight text-earth-950">{user.name}</h1>
                 {profile.trustedBadge && (
-                  <span className="trusted-badge">✓ Trusted Worker</span>
+                  <Badge className="border-sage-200 bg-sage-100 text-sage-800">
+                    <ShieldCheck size={12} />
+                    Trusted worker
+                  </Badge>
                 )}
               </div>
               {profile.area && (
-                <div className="text-earth-500 text-sm mb-2">📍 {profile.area}</div>
+                <div className="mb-3 inline-flex items-center gap-1.5 text-sm text-earth-500">
+                  <MapPin size={15} />
+                  {profile.area}
+                </div>
               )}
-              <div className="flex items-center gap-4 text-sm">
-                {profile.averageRating > 0 && (
-                  <span className="font-semibold text-brand-600">⭐ {profile.averageRating} avg rating</span>
-                )}
-                <span className="text-earth-500">{profile.jobsCompleted} jobs completed</span>
+              <div className="flex flex-wrap gap-3 text-sm">
+                <div className="muted-panel px-4 py-3">
+                  <div className="kicker mb-1">Rating</div>
+                  <div className="inline-flex items-center gap-1.5 font-semibold text-earth-900">
+                    <Star size={14} className="text-amber-500" />
+                    {profile.averageRating > 0 ? profile.averageRating.toFixed(1) : 'No rating yet'}
+                  </div>
+                </div>
+                <div className="muted-panel px-4 py-3">
+                  <div className="kicker mb-1">Completed jobs</div>
+                  <div className="font-semibold text-earth-900">{profile.jobsCompleted}</div>
+                </div>
               </div>
             </div>
           </div>
 
           {profile.bio && (
-            <div className="mt-5 pt-5 border-t border-earth-100">
-              <h3 className="text-sm font-semibold text-earth-500 uppercase tracking-wide mb-2">About</h3>
-              <p className="text-earth-700 leading-relaxed">{profile.bio}</p>
+            <div className="border-b border-earth-200 py-5">
+              <div className="kicker mb-2">About</div>
+              <p className="text-sm leading-7 text-earth-700">{profile.bio}</p>
             </div>
           )}
 
           {profile.servicesOffered.length > 0 && (
-            <div className="mt-5 pt-5 border-t border-earth-100">
-              <h3 className="text-sm font-semibold text-earth-500 uppercase tracking-wide mb-3">Services</h3>
+            <div className="pt-5">
+              <div className="kicker mb-3">Services offered</div>
               <div className="flex flex-wrap gap-2">
-                {profile.servicesOffered.map(s => (
-                  <span key={s} className="badge bg-earth-100 text-earth-700">{s}</span>
+                {profile.servicesOffered.map(service => (
+                  <span key={service} className="rounded-full border border-earth-200 bg-earth-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-earth-700">
+                    {service}
+                  </span>
                 ))}
               </div>
             </div>
@@ -73,21 +93,24 @@ export default async function WorkerProfilePage({ params }: { params: { id: stri
         </div>
 
         {user.reviewsReceived.length > 0 && (
-          <div>
-            <h2 className="section-title mb-4">Reviews ({user.reviewsReceived.length})</h2>
+          <div className="mt-6">
+            <div className="mb-4">
+              <div className="kicker mb-2">Reviews</div>
+              <h2 className="section-title">Customer feedback</h2>
+            </div>
             <div className="space-y-4">
               {user.reviewsReceived.map(review => (
                 <div key={review.id} className="card">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-earth-800">{review.customer.name}</span>
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <span key={i} className={i < review.rating ? 'text-brand-500' : 'text-earth-200'}>★</span>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <span className="font-semibold text-earth-900">{review.customer.name}</span>
+                    <div className="inline-flex items-center gap-1 text-amber-500">
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <Star key={index} size={14} fill={index < review.rating ? 'currentColor' : 'none'} />
                       ))}
                     </div>
                   </div>
-                  {review.comment && <p className="text-earth-600 text-sm">{review.comment}</p>}
-                  <p className="text-xs text-earth-400 mt-2">{formatDate(review.createdAt)}</p>
+                  {review.comment && <p className="text-sm leading-6 text-earth-700">{review.comment}</p>}
+                  <p className="mt-3 text-xs text-earth-400">{formatDate(review.createdAt)}</p>
                 </div>
               ))}
             </div>

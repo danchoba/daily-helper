@@ -1,47 +1,58 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { requireRole } from '@/lib/auth'
 import { VerificationStatus } from '@prisma/client'
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { requireRole } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { adminActionSchema } from '@/lib/validators'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await requireRole(req, 'ADMIN')
-    const { action } = await req.json() // 'approve' | 'reject'
+    const data = adminActionSchema.parse(await req.json())
 
-    const verReq = await prisma.verificationRequest.findUnique({
+    const verificationRequest = await prisma.verificationRequest.findUnique({
       where: { id: params.id },
-      include: { payment: true }
-    })
-    if (!verReq) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
-    const newStatus = action === 'approve' ? VerificationStatus.APPROVED : VerificationStatus.REJECTED
-
-    await prisma.verificationRequest.update({
-      where: { id: params.id },
-      data: { status: newStatus, reviewedAt: new Date(), reviewedBy: session.id }
+      include: { payment: true },
     })
 
-    // Update worker profile
-    await prisma.workerProfile.update({
-      where: { userId: verReq.workerId },
-      data: {
-        verificationStatus: newStatus,
-        trustedBadge: action === 'approve',
+    if (!verificationRequest) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
+    const newStatus = data.action === 'approve' ? VerificationStatus.APPROVED : VerificationStatus.REJECTED
+
+    await prisma.$transaction(async (tx) => {
+      await tx.verificationRequest.update({
+        where: { id: params.id },
+        data: { status: newStatus, reviewedAt: new Date(), reviewedBy: session.id },
+      })
+
+      await tx.workerProfile.update({
+        where: { userId: verificationRequest.workerId },
+        data: {
+          verificationStatus: newStatus,
+          trustedBadge: data.action === 'approve',
+        },
+      })
+
+      if (verificationRequest.paymentId) {
+        await tx.payment.update({
+          where: { id: verificationRequest.paymentId },
+          data: {
+            status: data.action === 'approve' ? 'APPROVED' : 'REJECTED',
+            reviewedAt: new Date(),
+          },
+        })
       }
     })
 
-    // Approve payment too
-    if (verReq.paymentId) {
-      await prisma.payment.update({
-        where: { id: verReq.paymentId },
-        data: { status: action === 'approve' ? 'APPROVED' : 'REJECTED', reviewedAt: new Date() }
-      })
-    }
-
     return NextResponse.json({ success: true })
-  } catch (err: any) {
-    if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    if (err.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  } catch (error: unknown) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.errors[0]?.message || 'Invalid request' }, { status: 400 })
+    }
+    if (error instanceof Error && error.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (error instanceof Error && error.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
