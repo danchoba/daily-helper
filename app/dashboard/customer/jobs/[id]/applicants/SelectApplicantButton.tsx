@@ -1,0 +1,36 @@
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+interface Props { jobId: string; applicationId: string; workerName: string }
+
+export function SelectApplicantButton({ jobId, applicationId, workerName }: Props) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSelect() {
+    if (!confirm(`Select ${workerName} for this job? Other pending applications will be rejected.`)) return
+    setLoading(true); setError('')
+    try {
+      const res = await fetch(`/api/jobs/${jobId}/select`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ applicationId })
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || 'Failed'); return }
+      router.refresh()
+    } catch { setError('Something went wrong') }
+    finally { setLoading(false) }
+  }
+
+  return (
+    <div>
+      {error && <p className="text-red-600 text-xs mb-2">{error}</p>}
+      <button onClick={handleSelect} disabled={loading} className="btn-primary btn-sm">
+        {loading ? 'Selecting…' : `Select ${workerName}`}
+      </button>
+    </div>
+  )
+}
