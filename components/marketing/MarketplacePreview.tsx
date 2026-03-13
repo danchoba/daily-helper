@@ -38,16 +38,22 @@ const previewJobs = [
   },
 ]
 
+const previewSignals = [
+  { label: 'Job flow', value: 'Open listings' },
+  { label: 'Trust', value: 'Verified profiles' },
+  { label: 'Response', value: 'Fast local replies' },
+]
+
 export function MarketplacePreview() {
   return (
     <div className="relative mx-auto w-full max-w-[520px]">
-      <div className="hero-grid absolute inset-6 rounded-[36px] border border-white/10 opacity-50" />
-      <div className="hero-glow absolute left-6 top-10 h-40 w-40 rounded-full bg-[#14B8A6]/30 blur-3xl" />
-      <div className="hero-glow absolute bottom-6 right-4 h-48 w-48 rounded-full bg-[#60A5FA]/30 blur-3xl" />
+      <div aria-hidden="true" className="hero-grid absolute inset-6 rounded-[36px] border border-white/10 opacity-50" />
+      <div aria-hidden="true" className="hero-glow absolute left-6 top-10 h-40 w-40 rounded-full bg-[#14B8A6]/30 blur-3xl" />
+      <div aria-hidden="true" className="hero-glow absolute bottom-6 right-4 h-48 w-48 rounded-full bg-[#60A5FA]/30 blur-3xl" />
 
-      <div className="absolute left-8 top-20 drift-particle h-3 w-3 rounded-full bg-white/60" />
-      <div className="absolute right-12 top-28 drift-particle h-2 w-2 rounded-full bg-[#A5F3FC]/70 [animation-delay:1.2s]" />
-      <div className="absolute bottom-24 left-12 drift-particle h-2.5 w-2.5 rounded-full bg-[#BFDBFE]/80 [animation-delay:2s]" />
+      <div aria-hidden="true" className="absolute left-8 top-20 drift-particle h-3 w-3 rounded-full bg-white/60" />
+      <div aria-hidden="true" className="absolute right-12 top-28 drift-particle h-2 w-2 rounded-full bg-[#A5F3FC]/70 [animation-delay:1.2s]" />
+      <div aria-hidden="true" className="absolute bottom-24 left-12 drift-particle h-2.5 w-2.5 rounded-full bg-[#BFDBFE]/80 [animation-delay:2s]" />
 
       <div className="relative px-3 py-8 sm:px-6">
         <div className="float-soft-delay absolute right-2 top-0 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur">
@@ -70,16 +76,16 @@ export function MarketplacePreview() {
 
           <div className="mb-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-blue-100">Open jobs</div>
-              <div className="mt-2 text-xl font-bold text-white">120+</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-blue-100">{previewSignals[0].label}</div>
+              <div className="mt-2 text-xl font-bold text-white">{previewSignals[0].value}</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-blue-100">Trusted workers</div>
-              <div className="mt-2 text-xl font-bold text-white">48</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-blue-100">{previewSignals[1].label}</div>
+              <div className="mt-2 text-xl font-bold text-white">{previewSignals[1].value}</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-blue-100">Avg response</div>
-              <div className="mt-2 text-xl font-bold text-white">Under 1h</div>
+              <div className="text-xs font-semibold uppercase tracking-[0.08em] text-blue-100">{previewSignals[2].label}</div>
+              <div className="mt-2 text-xl font-bold text-white">{previewSignals[2].value}</div>
             </div>
           </div>
 
@@ -93,9 +99,9 @@ export function MarketplacePreview() {
                   <div className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] ${job.tone}`}>
                     Open now
                   </div>
-                  <button className="rounded-full bg-[#F8FAFC] p-2 text-[#0F172A] transition hover:bg-[#EFF6FF]">
+                  <span aria-hidden="true" className="rounded-full bg-[#F8FAFC] p-2 text-[#0F172A]">
                     <ArrowUpRight size={14} />
-                  </button>
+                  </span>
                 </div>
                 <h4 className="text-base font-bold leading-6 text-[#0F172A]">{job.title}</h4>
                 <div className="mt-4 flex flex-wrap gap-3 text-sm text-[#64748B]">

@@ -14,6 +14,11 @@ export function Reveal({ children, className, delay = 0 }: RevealProps) {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setVisible(true)
+      return
+    }
+
     const node = ref.current
     if (!node) return
 

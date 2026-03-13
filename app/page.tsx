@@ -128,7 +128,7 @@ export default async function HomePage() {
             { label: 'Local by design', value: 'Short-distance work with clear location context.', icon: MapPin },
             { label: 'Simple coordination', value: 'Structured job flow from posting to contact unlock.', icon: Users },
           ].map(({ label, value, icon: Icon }, index) => (
-            <Reveal key={label} delay={(index % 4) as 0 | 1 | 2 | 3}>
+            <Reveal key={label} delay={(index % 4) as 0 | 1 | 2 | 3} className="h-full">
               <div className="group rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DBEAFE] text-[#1F4ED8] transition duration-200 group-hover:bg-[#1F4ED8] group-hover:text-white">
                   <Icon size={20} />
@@ -258,7 +258,7 @@ export default async function HomePage() {
           {categories.map((category, index) => {
             const Icon = categoryIcons[category.slug] || BriefcaseBusiness
             return (
-              <Reveal key={category.id} delay={(index % 4) as 0 | 1 | 2 | 3}>
+              <Reveal key={category.id} delay={(index % 4) as 0 | 1 | 2 | 3} className="h-full">
                 <Link
                   href={`/jobs?category=${category.slug}`}
                   className="group flex h-full min-h-[160px] flex-col rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-1 hover:border-[#BFDBFE] hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
@@ -378,7 +378,7 @@ export default async function HomePage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {recentJobs.map((job, index) => (
-              <Reveal key={job.id} delay={(index % 2) as 0 | 1}>
+              <Reveal key={job.id} delay={(index % 2) as 0 | 1} className="h-full">
                 <JobCard job={job} />
               </Reveal>
             ))}
@@ -413,7 +413,7 @@ export default async function HomePage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-3">
             {trustedWorkers.map((worker, index) => (
-              <Reveal key={worker.id} delay={(index % 3) as 0 | 1 | 2}>
+              <Reveal key={worker.id} delay={(index % 3) as 0 | 1 | 2} className="h-full">
                 <WorkerCard
                   worker={{
                     ...worker,

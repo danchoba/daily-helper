@@ -18,7 +18,7 @@ interface WorkerCardProps {
 export function WorkerCard({ worker }: WorkerCardProps) {
   return (
     <Link href={`/workers/${worker.id}`} className="block">
-      <div className="card transition-all duration-150 hover:-translate-y-0.5 hover:border-earth-300 hover:shadow-md">
+      <div className="card h-full transition-all duration-150 hover:-translate-y-0.5 hover:border-earth-300 hover:shadow-md">
         <div className="mb-4 flex items-start gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-earth-900 text-base font-bold text-white">
             {worker.user.name.charAt(0)}

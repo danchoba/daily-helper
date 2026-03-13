@@ -166,3 +166,26 @@ a {
 .reveal-delay-3 {
   transition-delay: 270ms;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero-glow,
+  .float-soft,
+  .float-soft-delay,
+  .drift-particle {
+    animation: none !important;
+  }
+
+  .reveal,
+  .reveal-visible,
+  .reveal-delay-1,
+  .reveal-delay-2,
+  .reveal-delay-3 {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
