@@ -16,16 +16,17 @@ import {
   UserCheck,
   Users,
   Wrench,
+  Zap,
   type LucideIcon,
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from '@/lib/session'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
-import { JobCard } from '@/components/jobs/JobCard'
-import { WorkerCard } from '@/components/workers/WorkerCard'
 import { Reveal } from '@/components/marketing/Reveal'
 import { MarketplacePreview } from '@/components/marketing/MarketplacePreview'
+import { LandingJobCard } from '@/components/marketing/LandingJobCard'
+import { LandingWorkerCard } from '@/components/marketing/LandingWorkerCard'
 
 const categoryIcons: Record<string, LucideIcon> = {
   cleaning: Sparkles,
@@ -35,6 +36,77 @@ const categoryIcons: Record<string, LucideIcon> = {
   handyman: Hammer,
   repairs: Drill,
 }
+
+const platformSignals = [
+  {
+    icon: BriefcaseBusiness,
+    label: 'Structured posting',
+    value: 'Clear briefs, budgets, and timing from the first step.',
+  },
+  {
+    icon: MapPin,
+    label: 'Local relevance',
+    value: 'Nearby work discovery without pretending the data is more precise than it is.',
+  },
+  {
+    icon: ShieldCheck,
+    label: 'Trust signals',
+    value: 'Verification, reviews, and visible profile quality before hiring decisions.',
+  },
+  {
+    icon: CreditCard,
+    label: 'Protected contact',
+    value: 'Contact unlock stays controlled until there is real hiring intent.',
+  },
+] as const
+
+const workflowSteps = [
+  {
+    icon: BriefcaseBusiness,
+    step: '01',
+    title: 'Post the work',
+    desc: 'Customers create a clean brief with area, timing, urgency, and budget guidance.',
+  },
+  {
+    icon: Users,
+    step: '02',
+    title: 'Review applicants',
+    desc: 'Workers apply nearby and customers compare profiles, trust signals, and fit.',
+  },
+  {
+    icon: CreditCard,
+    step: '03',
+    title: 'Unlock and coordinate',
+    desc: 'Once ready to hire, the connection flow unlocks contact details for direct coordination.',
+  },
+] as const
+
+const categorySurfaces = [
+  {
+    surface: 'bg-[linear-gradient(180deg,#FFFFFF_0%,#EFF6FF_100%)]',
+    border: 'border-[#DCE6F3]',
+    icon: 'bg-[#DBEAFE] text-[#1D4ED8]',
+    glow: 'bg-[#BFDBFE]',
+  },
+  {
+    surface: 'bg-[linear-gradient(180deg,#FFFFFF_0%,#F1FFFC_100%)]',
+    border: 'border-[#CDEEE8]',
+    icon: 'bg-[#CCFBF1] text-[#0F766E]',
+    glow: 'bg-[#99F6E4]',
+  },
+  {
+    surface: 'bg-[linear-gradient(180deg,#FFFFFF_0%,#FFF7ED_100%)]',
+    border: 'border-[#F5DEC3]',
+    icon: 'bg-[#FFEDD5] text-[#C2410C]',
+    glow: 'bg-[#FED7AA]',
+  },
+  {
+    surface: 'bg-[linear-gradient(180deg,#FFFFFF_0%,#F8F5FF_100%)]',
+    border: 'border-[#E4D8FF]',
+    icon: 'bg-[#E9D5FF] text-[#7C3AED]',
+    glow: 'bg-[#DDD6FE]',
+  },
+] as const
 
 export default async function HomePage() {
   const session = await getServerSession()
@@ -58,56 +130,74 @@ export default async function HomePage() {
     prisma.category.findMany({ take: 8 }),
   ])
 
+  const customerCta = session?.role === 'CUSTOMER' ? '/dashboard/customer/jobs/new' : '/signup'
+  const workerCta = session?.role === 'WORKER' ? '/dashboard/worker' : '/signup?role=worker'
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F4F8FF_0%,#FFFFFF_30%,#EEF5FF_100%)] text-[#0F172A]">
       <Navbar user={session} />
 
-      <section className="relative overflow-hidden border-b border-[#DCE6F3] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16),transparent_22%),linear-gradient(135deg,#0F2E89_0%,#1F4ED8_45%,#102A75_100%)] text-white">
-        <div className="hero-grid absolute inset-0 opacity-35" />
-        <div className="hero-glow absolute left-[-2%] top-12 h-64 w-64 rounded-full bg-[#60A5FA]/30 blur-3xl" />
-        <div className="hero-glow absolute bottom-2 right-[-4%] h-80 w-80 rounded-full bg-[#14B8A6]/25 blur-3xl" />
+      <section className="relative overflow-hidden border-b border-[#DCE6F3] text-white">
+        <div className="hero-sky absolute inset-0" />
+        <div className="hero-orbits absolute inset-0 opacity-70" />
+        <div className="hero-stars absolute inset-0 opacity-90" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,18,57,0.08)_0%,rgba(7,18,57,0.12)_100%)]" />
+        <div className="hero-glow absolute left-[-6%] top-[14%] h-72 w-72 rounded-full bg-white/18 blur-3xl" />
+        <div className="hero-glow absolute bottom-[-4%] left-[-8%] h-80 w-80 rounded-full bg-[#DCEBFF]/30 blur-3xl" />
+        <div className="hero-glow absolute right-[-8%] top-0 h-96 w-96 rounded-full bg-[#A5D8FF]/35 blur-3xl" />
+        <div className="hero-glow absolute bottom-[-10%] right-[8%] h-72 w-72 rounded-full bg-[#7DD3FC]/16 blur-3xl" />
 
-        <div className="section-shell relative grid items-center gap-14 py-16 md:grid-cols-[1.02fr,0.98fr] md:py-24">
+        <div className="section-shell relative grid items-center gap-14 py-14 md:grid-cols-[0.95fr,1.05fr] md:py-20 lg:py-24">
           <Reveal>
-            <div className="max-w-2xl">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-blue-100 backdrop-blur">
-                <ShieldCheck size={14} />
-                Professional local marketplace for practical jobs
-              </div>
-
-              <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.02] tracking-[-0.045em] text-white md:text-6xl">
-                Small local jobs, handled through a cleaner and more trusted workflow.
+            <div className="max-w-[640px]">
+              <h1 className="max-w-[12ch] text-[2.85rem] font-extrabold leading-[0.94] tracking-[-0.065em] text-white sm:text-[3.8rem] md:max-w-[11ch] md:text-[4.8rem]">
+                Hire reliable <span className="bg-[linear-gradient(135deg,#B9F4CF_0%,#6FE4F1_100%)] bg-clip-text text-transparent">local help</span> or find quality work without friction.
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-7 text-blue-100 md:text-lg">
-                Customers post jobs, workers apply nearby, and Daily Helper keeps the process organized with verification, reviews, and controlled contact unlocks.
+              <p className="mt-6 max-w-2xl text-base leading-8 text-[#DDEAFF] sm:text-lg">
+                Daily Helper connects customers and workers through a clean job flow, clear trust signals, and simple local coordination.
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href={session?.role === 'CUSTOMER' ? '/dashboard/customer/jobs/new' : '/signup'}
-                  className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-[#1F4ED8] shadow-[0_14px_30px_rgba(15,23,42,0.22)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(15,23,42,0.24)]"
+                  href={customerCta}
+                  className="inline-flex min-h-[56px] items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(180deg,#3C78EE_0%,#1E58D9_100%)] px-6 py-3 text-base font-semibold text-white shadow-[0_18px_40px_rgba(15,23,42,0.22)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_24px_48px_rgba(15,23,42,0.24)]"
                 >
                   <BriefcaseBusiness size={16} />
-                  Post a job
+                  Post a Job
                 </Link>
                 <Link
                   href="/jobs"
-                  className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition duration-200 hover:-translate-y-0.5 hover:bg-white/15"
+                  className="inline-flex min-h-[56px] items-center justify-center gap-2 rounded-2xl border border-white/50 bg-white px-6 py-3 text-base font-semibold text-[#1D3A70] shadow-[0_18px_40px_rgba(15,23,42,0.16)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#F8FBFF]"
                 >
                   <Search size={16} />
-                  Browse jobs
+                  Browse Jobs
                 </Link>
               </div>
 
-              <div className="mt-10 grid gap-3 sm:grid-cols-3">
+              <div className="mt-10 grid gap-4 sm:max-w-[44rem] sm:grid-cols-2">
                 {[
-                  { label: 'Verified trust', value: 'Manual review and trusted badges' },
-                  { label: 'Fast local matching', value: 'Clear nearby job discovery' },
-                  { label: 'Protected contact flow', value: 'Unlock only when ready to hire' },
-                ].map(item => (
-                  <div key={item.label} className="rounded-2xl border border-white/12 bg-white/8 p-4 backdrop-blur">
-                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-100">{item.label}</div>
-                    <div className="mt-2 text-sm leading-6 text-white/90">{item.value}</div>
+                  {
+                    label: 'Fast posting flow',
+                    value: 'Create a job in minutes with clear details and budget guidance.',
+                    icon: Zap,
+                    tone: 'bg-[linear-gradient(180deg,#60A5FA_0%,#1D4ED8_100%)] text-white',
+                  },
+                  {
+                    label: 'Verified trust signals',
+                    value: 'Profiles, reviews, and verification help customers hire with confidence.',
+                    icon: ShieldCheck,
+                    tone: 'bg-[linear-gradient(180deg,#9AE6F0_0%,#14B8A6_100%)] text-[#0F3B46]',
+                  },
+                ].map(({ label, value, icon: Icon, tone }) => (
+                  <div
+                    key={label}
+                    className="rounded-[28px] border border-white/45 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(244,248,255,0.9))] p-5 text-[#1D315C] shadow-[0_24px_60px_rgba(15,23,42,0.14)] backdrop-blur-xl sm:p-6"
+                  >
+                    <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${tone}`}>
+                      <Icon size={22} />
+                    </div>
+                    <div className="mt-4 text-[1.35rem] font-bold tracking-[-0.04em]">{label}</div>
+                    <div className="mt-2 text-sm leading-7 text-[#5A6784] sm:text-base">{value}</div>
                   </div>
                 ))}
               </div>
@@ -120,121 +210,180 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section-shell py-12 md:py-14">
-        <div className="grid gap-4 md:grid-cols-4">
+      <section className="section-shell -mt-8 pt-0 md:-mt-12">
+        <Reveal>
+          <div className="landing-aurora relative overflow-hidden rounded-[38px] border border-white/70 px-6 py-7 shadow-[0_24px_60px_rgba(15,23,42,0.08)] md:px-8 md:py-8">
+            <div className="float-soft absolute -left-12 top-10 h-32 w-32 rounded-full bg-[#DBEAFE]/80 blur-3xl" />
+            <div className="float-soft-delay absolute right-10 top-0 h-28 w-28 rounded-full bg-[#CCFBF1]/70 blur-3xl" />
+            <div className="relative grid gap-8 lg:grid-cols-[0.88fr,1.12fr] lg:items-center">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">Marketplace system</p>
+                <h2 className="text-3xl font-extrabold tracking-[-0.04em] text-[#0F172A] md:text-4xl">
+                  A calmer hiring experience designed around clarity, trust, and mobile speed.
+                </h2>
+                <p className="mt-4 max-w-xl text-sm leading-7 text-[#64748B] md:text-base">
+                  The homepage now frames Daily Helper as a modern local marketplace rather than a list of isolated features. Every section reinforces trust, local relevance, and a clean job lifecycle.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {platformSignals.map(({ icon: Icon, label, value }, index) => (
+                  <Reveal key={label} delay={(index % 4) as 0 | 1 | 2 | 3} className="h-full">
+                    <div className="h-full rounded-[28px] border border-white/70 bg-white/85 p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F0FE] text-[#1D4ED8]">
+                        <Icon size={20} />
+                      </div>
+                      <div className="mt-4 text-lg font-bold tracking-[-0.03em] text-[#0F172A]">{label}</div>
+                      <p className="mt-2 text-sm leading-7 text-[#64748B]">{value}</p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      <section className="section-shell pt-6 md:pt-8">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <Reveal>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">Two clear paths</p>
+              <h2 className="text-3xl font-extrabold tracking-[-0.04em] text-[#0F172A] md:text-4xl">
+                Distinct customer and worker flows, without mixing their priorities.
+              </h2>
+            </div>
+          </Reveal>
+          <Reveal delay={1}>
+            <p className="max-w-2xl text-sm leading-7 text-[#64748B] md:text-base">
+              Customers need speed and confidence. Workers need visibility, local opportunities, and a profile that feels credible. The landing page now makes those lanes explicit.
+            </p>
+          </Reveal>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
           {[
-            { label: 'Trust-first', value: 'Verification and review signals support safer hiring.', icon: BadgeCheck },
-            { label: 'Mobile-first', value: 'Designed for quick posting and browsing on a phone.', icon: Sparkles },
-            { label: 'Local by design', value: 'Short-distance work with clear location context.', icon: MapPin },
-            { label: 'Simple coordination', value: 'Structured job flow from posting to contact unlock.', icon: Users },
-          ].map(({ label, value, icon: Icon }, index) => (
-            <Reveal key={label} delay={(index % 4) as 0 | 1 | 2 | 3} className="h-full">
-              <div className="group rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DBEAFE] text-[#1F4ED8] transition duration-200 group-hover:bg-[#1F4ED8] group-hover:text-white">
-                  <Icon size={20} />
+            {
+              label: 'For customers',
+              title: 'Post once, review clearly, and hire without chaos.',
+              description: 'Create a clean brief, compare nearby applicants with trust signals, and unlock contact only when you are ready to move forward.',
+              points: [
+                'Clear mobile-first posting with budget and timing context.',
+                'Visible profile signals before shortlisting a worker.',
+                'Structured next steps after hiring intent is real.',
+              ],
+              icon: BriefcaseBusiness,
+              href: customerCta,
+              cta: 'Post a Job',
+              surface: 'bg-[linear-gradient(180deg,#FFFFFF_0%,#F3F8FF_100%)]',
+              border: 'border-[#D8E5F8]',
+              accent: 'bg-[#DBEAFE] text-[#1D4ED8]',
+              glow: 'bg-[#BFDBFE]/80',
+            },
+            {
+              label: 'For workers',
+              title: 'Build trust, find local gigs, and respond with clarity.',
+              description: 'Workers get a cleaner storefront for services, location, verification status, and completed-job feedback so customers know what they are reviewing.',
+              points: [
+                'Profiles that surface services, area, and reputation clearly.',
+                'Local job discovery that respects practical distance.',
+                'A marketplace experience that feels more credible than casual.',
+              ],
+              icon: UserCheck,
+              href: workerCta,
+              cta: 'Find Work',
+              surface: 'bg-[linear-gradient(180deg,#FFFFFF_0%,#F1FFFC_100%)]',
+              border: 'border-[#CDEEE8]',
+              accent: 'bg-[#CCFBF1] text-[#0F766E]',
+              glow: 'bg-[#99F6E4]/80',
+            },
+          ].map(({ label, title, description, points, icon: Icon, href, cta, surface, border, accent, glow }, index) => (
+            <Reveal key={label} delay={index as 0 | 1}>
+              <div className={`relative overflow-hidden rounded-[34px] border ${border} ${surface} p-6 shadow-[0_20px_50px_rgba(15,23,42,0.06)] sm:p-7`}>
+                <div className={`float-soft absolute -right-10 top-4 h-28 w-28 rounded-full ${glow} blur-3xl`} />
+                <div className="relative">
+                  <div className="flex items-center gap-4">
+                    <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${accent}`}>
+                      <Icon size={22} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">{label}</p>
+                      <h3 className="mt-1 text-2xl font-bold tracking-[-0.04em] text-[#0F172A]">{title}</h3>
+                    </div>
+                  </div>
+
+                  <p className="mt-5 text-sm leading-7 text-[#64748B] md:text-base">{description}</p>
+
+                  <div className="mt-6 space-y-3">
+                    {points.map(point => (
+                      <div key={point} className="flex items-start gap-3 rounded-2xl border border-white/70 bg-white/75 p-4">
+                        <CheckCircle2 size={18} className="mt-0.5 text-[#22C55E]" />
+                        <p className="text-sm leading-6 text-[#475569]">{point}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Link href={href} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#1D4ED8] transition hover:text-[#1739A7]">
+                    {cta}
+                    <ArrowRight size={15} />
+                  </Link>
                 </div>
-                <h2 className="text-lg font-bold tracking-tight text-[#0F172A]">{label}</h2>
-                <p className="mt-2 text-sm leading-6 text-[#64748B]">{value}</p>
               </div>
             </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="section-shell border-y border-[#E2E8F0] bg-white">
-        <div className="grid gap-10 md:grid-cols-[0.9fr,1.1fr] md:items-center">
-          <Reveal>
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">How it works</p>
-              <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-[#0F172A] md:text-4xl">
-                Built for customers who want speed and workers who need clarity.
-              </h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-[#64748B]">
-                The product keeps the path simple: publish the task, review applicants with visible trust signals, then unlock contact details when there is real hiring intent.
-              </p>
+      <section className="section-shell">
+        <Reveal>
+          <div className="relative overflow-hidden rounded-[40px] border border-[#17306F] bg-[linear-gradient(135deg,#0C1737_0%,#112758_52%,#1F4ED8_100%)] px-6 py-8 text-white shadow-[0_28px_80px_rgba(15,23,42,0.16)] md:px-8 lg:px-10">
+            <div className="hero-stars absolute inset-0 opacity-20" />
+            <div className="landing-sheen absolute inset-0 opacity-35" />
+            <div className="hero-glow absolute left-8 top-8 h-32 w-32 rounded-full bg-[#60A5FA]/30 blur-3xl" />
+            <div className="hero-glow absolute bottom-0 right-8 h-40 w-40 rounded-full bg-[#2DD4BF]/20 blur-3xl" />
 
-              <div className="mt-8 space-y-4">
-                {[
-                  {
-                    icon: BriefcaseBusiness,
-                    title: 'Post the job',
-                    desc: 'Describe the work, timing, area, and budget in a clear mobile-first form.',
-                  },
-                  {
-                    icon: Users,
-                    title: 'Review applicants',
-                    desc: 'Compare profiles, ratings, verification, and local relevance before selecting.',
-                  },
-                  {
-                    icon: CreditCard,
-                    title: 'Unlock and coordinate',
-                    desc: 'Submit payment for the connection fee and reveal contact details after approval.',
-                  },
-                ].map(({ icon: Icon, title, desc }, index) => (
-                  <Reveal key={title} delay={index as 0 | 1 | 2}>
-                    <div className="flex gap-4 rounded-3xl border border-[#E2E8F0] bg-[#F8FAFC] p-5">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#DBEAFE] text-[#1F4ED8]">
-                        <Icon size={20} />
+            <div className="relative grid gap-10 lg:grid-cols-[0.8fr,1.2fr] lg:items-center">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-blue-200">How it works</p>
+                <h2 className="text-3xl font-extrabold tracking-[-0.04em] text-white md:text-4xl">
+                  The product stays simple by making the next action obvious at every stage.
+                </h2>
+                <p className="mt-4 max-w-xl text-sm leading-7 text-slate-200 md:text-base">
+                  The redesigned landing flow shows the job lifecycle more clearly: publish the brief, review the right people, then connect when hiring intent is real. That clarity is part of the product, not just the marketing.
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {[
+                    'Manual verification',
+                    'Protected contact unlock',
+                    'Status-led job progression',
+                  ].map(item => (
+                    <span key={item} className="rounded-full border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-blue-100">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                {workflowSteps.map(({ icon: Icon, step, title, desc }, index) => (
+                  <Reveal key={step} delay={index as 0 | 1 | 2}>
+                    <div className="h-full rounded-[30px] border border-white/12 bg-white/8 p-5 backdrop-blur-xl">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200">{step}</span>
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-white">
+                          <Icon size={18} />
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-bold tracking-tight text-[#0F172A]">{title}</h3>
-                        <p className="mt-1 text-sm leading-6 text-[#64748B]">{desc}</p>
-                      </div>
+                      <h3 className="mt-6 text-xl font-bold tracking-[-0.03em] text-white">{title}</h3>
+                      <p className="mt-3 text-sm leading-7 text-slate-200">{desc}</p>
                     </div>
                   </Reveal>
                 ))}
               </div>
             </div>
-          </Reveal>
-
-          <Reveal delay={1}>
-            <div className="relative mx-auto w-full max-w-[560px] rounded-[34px] border border-[#E2E8F0] bg-[linear-gradient(180deg,#FFFFFF_0%,#EEF6FF_100%)] p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
-              <div className="absolute inset-x-10 top-10 h-px bg-[linear-gradient(90deg,transparent,#BFDBFE,transparent)]" />
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-3xl border border-[#E2E8F0] bg-white p-5">
-                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#DBEAFE] text-[#1F4ED8]">
-                    <BriefcaseBusiness size={18} />
-                  </div>
-                  <h3 className="font-bold tracking-tight text-[#0F172A]">Customer workspace</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#64748B]">
-                    Track active jobs, review applicants, and manage next actions from one dashboard.
-                  </p>
-                </div>
-                <div className="rounded-3xl border border-[#E2E8F0] bg-white p-5">
-                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#CCFBF1] text-[#14B8A6]">
-                    <UserCheck size={18} />
-                  </div>
-                  <h3 className="font-bold tracking-tight text-[#0F172A]">Worker profile</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#64748B]">
-                    Present services, location, verification state, and customer reviews in a clean format.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-5 rounded-3xl border border-[#E2E8F0] bg-[#0F172A] p-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.18)]">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-200">Hiring confidence</p>
-                    <h3 className="mt-1 text-xl font-bold tracking-tight">Signals customers can trust</h3>
-                  </div>
-                  <ShieldCheck size={22} className="text-[#14B8A6]" />
-                </div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  {[
-                    ['Identity review', 'Trusted badge after approval'],
-                    ['Verified feedback', 'Ratings tied to completed jobs'],
-                    ['Private details', 'Contact stays locked until payment'],
-                  ].map(([title, desc]) => (
-                    <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                      <p className="text-sm font-semibold text-white">{title}</p>
-                      <p className="mt-2 text-xs leading-5 text-slate-300">{desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
+          </div>
+        </Reveal>
       </section>
 
       <section className="section-shell">
@@ -242,162 +391,114 @@ export default async function HomePage() {
           <Reveal>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">Popular categories</p>
-              <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-[#0F172A] md:text-4xl">
-                Services people actually need every week
+              <h2 className="text-3xl font-extrabold tracking-[-0.04em] text-[#0F172A] md:text-4xl">
+                Everyday services presented as practical, local, and easy to scan.
               </h2>
             </div>
           </Reveal>
           <Reveal delay={1}>
-            <p className="max-w-xl text-sm leading-7 text-[#64748B]">
-              Daily Helper is designed for practical, real-world local work across household support, errands, maintenance, and moving help.
+            <p className="max-w-2xl text-sm leading-7 text-[#64748B] md:text-base">
+              The category grid is now more visual and intentional, with stronger surfaces, clearer icon treatment, and a faster path into nearby jobs.
             </p>
           </Reveal>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-4">
-          {categories.map((category, index) => {
-            const Icon = categoryIcons[category.slug] || BriefcaseBusiness
-            return (
-              <Reveal key={category.id} delay={(index % 4) as 0 | 1 | 2 | 3} className="h-full">
-                <Link
-                  href={`/jobs?category=${category.slug}`}
-                  className="group flex h-full min-h-[160px] flex-col rounded-3xl border border-[#E2E8F0] bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-1 hover:border-[#BFDBFE] hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
-                >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EFF6FF] text-[#1F4ED8] transition duration-200 group-hover:bg-[#1F4ED8] group-hover:text-white">
-                    <Icon size={20} />
-                  </div>
-                  <div className="mt-auto text-sm font-semibold text-[#0F172A]">{category.name}</div>
-                </Link>
-              </Reveal>
-            )
-          })}
-        </div>
-      </section>
-
-      <section className="section-shell border-y border-[#E2E8F0] bg-white">
-        <div className="grid gap-10 md:grid-cols-[1fr,1fr] md:items-center">
-          <Reveal>
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">Trust and verification</p>
-              <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-[#0F172A] md:text-4xl">
-                The platform is designed to feel reliable, not casual.
-              </h2>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-[#64748B]">
-                Verification, reviews, and protected communication reduce uncertainty and help both sides understand what happens next.
-              </p>
-
-              <div className="mt-8 space-y-3">
-                {[
-                  'Trusted badges appear only after manual review by an admin.',
-                  'Worker ratings come from completed jobs rather than self-reported claims.',
-                  'Contact details stay private until a customer is ready to connect.',
-                  'Status-driven screens make each action easier to follow on mobile.',
-                ].map((item, index) => (
-                  <Reveal key={item} delay={index as 0 | 1 | 2 | 3}>
-                    <div className="flex items-start gap-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
-                      <CheckCircle2 size={18} className="mt-0.5 text-[#22C55E]" />
-                      <p className="text-sm leading-6 text-[#475569]">{item}</p>
-                    </div>
-                  </Reveal>
-                ))}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {categories.length === 0 ? (
+            <Reveal>
+              <div className="rounded-[32px] border border-[#DCE6F3] bg-white p-8 text-sm text-[#64748B] shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+                Categories will appear here after they are configured in the database.
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+          ) : (
+            categories.map((category, index) => {
+              const Icon = categoryIcons[category.slug] || BriefcaseBusiness
+              const surface = categorySurfaces[index % categorySurfaces.length]
 
-          <Reveal delay={1}>
-            <div className="relative mx-auto w-full max-w-[520px] overflow-hidden rounded-[34px] border border-[#E2E8F0] bg-[linear-gradient(180deg,#F8FBFF_0%,#FFFFFF_100%)] p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)]">
-              <div className="absolute left-[-36px] top-[-32px] h-32 w-32 rounded-full bg-[#1F4ED8]/10 blur-2xl" />
-              <div className="absolute bottom-[-24px] right-[-18px] h-28 w-28 rounded-full bg-[#14B8A6]/10 blur-2xl" />
-              <div className="relative space-y-4">
-                <div className="rounded-3xl border border-[#E2E8F0] bg-white p-5">
-                  <div className="mb-4 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DCFCE7] text-[#22C55E]">
-                      <BadgeCheck size={20} />
+              return (
+                <Reveal key={category.id} delay={(index % 4) as 0 | 1 | 2 | 3} className="h-full">
+                  <Link
+                    href={`/jobs?category=${category.slug}`}
+                    className={`group relative flex h-full min-h-[210px] overflow-hidden rounded-[32px] border ${surface.border} ${surface.surface} p-5 shadow-[0_18px_40px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(15,23,42,0.08)]`}
+                  >
+                    <div className={`float-soft absolute -right-8 top-5 h-24 w-24 rounded-full ${surface.glow} blur-3xl`} />
+                    <div className="relative flex h-full flex-col">
+                      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${surface.icon} shadow-[0_12px_28px_rgba(15,23,42,0.08)]`}>
+                        <Icon size={22} />
+                      </div>
+                      <div className="mt-auto">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[#64748B]">Local service</div>
+                        <div className="mt-2 text-xl font-bold tracking-[-0.03em] text-[#0F172A]">{category.name}</div>
+                        <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#1D4ED8]">
+                          Explore jobs
+                          <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-1" />
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-[#0F172A]">Trusted worker profile</p>
-                      <p className="text-sm text-[#64748B]">Visible after verification approval</p>
-                    </div>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl bg-[#F8FAFC] p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">Verification</p>
-                      <p className="mt-2 text-sm font-semibold text-[#0F172A]">Manual identity review</p>
-                    </div>
-                    <div className="rounded-2xl bg-[#F8FAFC] p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">Reputation</p>
-                      <p className="mt-2 text-sm font-semibold text-[#0F172A]">Real customer reviews</p>
-                    </div>
-                    <div className="rounded-2xl bg-[#F8FAFC] p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">Privacy</p>
-                      <p className="mt-2 text-sm font-semibold text-[#0F172A]">Controlled contact unlock</p>
-                    </div>
-                    <div className="rounded-2xl bg-[#F8FAFC] p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#64748B]">Clarity</p>
-                      <p className="mt-2 text-sm font-semibold text-[#0F172A]">Visible job progression</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-3xl bg-[#0F172A] p-5 text-white">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-200">Marketplace principle</div>
-                  <p className="mt-3 text-base font-semibold leading-7">
-                    Daily Helper is structured to make fast local hiring feel more credible, less chaotic, and easier to understand on a phone.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
+                  </Link>
+                </Reveal>
+              )
+            })
+          )}
         </div>
       </section>
 
       <section className="section-shell">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <Reveal>
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">Open jobs</p>
-              <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-[#0F172A] md:text-4xl">
-                Recent opportunities posted right now
-              </h2>
-            </div>
-          </Reveal>
-          <Reveal delay={1}>
-            <Link href="/jobs" className="inline-flex items-center gap-2 text-sm font-semibold text-[#1F4ED8] transition hover:text-[#1739A7]">
-              Browse all jobs
-              <ArrowRight size={15} />
-            </Link>
-          </Reveal>
-        </div>
+        <Reveal>
+          <div className="landing-aurora relative overflow-hidden rounded-[40px] border border-[#DCE6F3] px-6 py-8 shadow-[0_24px_60px_rgba(15,23,42,0.07)] md:px-8">
+            <div className="float-soft absolute left-[-2rem] top-12 h-28 w-28 rounded-full bg-[#DBEAFE]/80 blur-3xl" />
+            <div className="float-soft-delay absolute right-6 bottom-8 h-24 w-24 rounded-full bg-[#CCFBF1]/70 blur-3xl" />
 
-        {recentJobs.length === 0 ? (
-          <Reveal>
-            <div className="rounded-3xl border border-[#E2E8F0] bg-white p-8 text-sm text-[#64748B] shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-              No jobs are live yet. Customers can publish the first listing from the signup flow.
+            <div className="relative">
+              <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <Reveal>
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">Open jobs</p>
+                    <h2 className="text-3xl font-extrabold tracking-[-0.04em] text-[#0F172A] md:text-4xl">
+                      Recent opportunities that make the marketplace feel active right now.
+                    </h2>
+                  </div>
+                </Reveal>
+                <Reveal delay={1}>
+                  <Link href="/jobs" className="inline-flex items-center gap-2 text-sm font-semibold text-[#1D4ED8] transition hover:text-[#1739A7]">
+                    Browse all jobs
+                    <ArrowRight size={15} />
+                  </Link>
+                </Reveal>
+              </div>
+
+              {recentJobs.length === 0 ? (
+                <Reveal>
+                  <div className="rounded-[30px] border border-white/70 bg-white/85 p-8 text-sm text-[#64748B] shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
+                    No jobs are live yet. Customers can publish the first listing from the signup flow.
+                  </div>
+                </Reveal>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {recentJobs.map((job, index) => (
+                    <Reveal key={job.id} delay={(index % 2) as 0 | 1} className="h-full">
+                      <LandingJobCard job={job} index={index} />
+                    </Reveal>
+                  ))}
+                </div>
+              )}
             </div>
-          </Reveal>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {recentJobs.map((job, index) => (
-              <Reveal key={job.id} delay={(index % 2) as 0 | 1} className="h-full">
-                <JobCard job={job} />
-              </Reveal>
-            ))}
           </div>
-        )}
+        </Reveal>
       </section>
 
-      <section className="section-shell border-t border-[#E2E8F0] bg-white">
+      <section className="section-shell pt-0">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <Reveal>
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">Trusted workers</p>
-              <h2 className="text-3xl font-extrabold tracking-[-0.03em] text-[#0F172A] md:text-4xl">
-                Profiles that help customers hire with more confidence
+              <h2 className="text-3xl font-extrabold tracking-[-0.04em] text-[#0F172A] md:text-4xl">
+                Profiles that help customers decide faster and with more confidence.
               </h2>
             </div>
           </Reveal>
           <Reveal delay={1}>
-            <Link href="/signup?role=worker" className="inline-flex items-center gap-2 text-sm font-semibold text-[#1F4ED8] transition hover:text-[#1739A7]">
+            <Link href={workerCta} className="inline-flex items-center gap-2 text-sm font-semibold text-[#1D4ED8] transition hover:text-[#1739A7]">
               Build a worker profile
               <ArrowRight size={15} />
             </Link>
@@ -406,7 +507,7 @@ export default async function HomePage() {
 
         {trustedWorkers.length === 0 ? (
           <Reveal>
-            <div className="rounded-3xl border border-[#E2E8F0] bg-white p-8 text-sm text-[#64748B] shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+            <div className="rounded-[32px] border border-[#DCE6F3] bg-white p-8 text-sm text-[#64748B] shadow-[0_18px_40px_rgba(15,23,42,0.05)]">
               Trusted worker profiles will appear here as verification requests are approved.
             </div>
           </Reveal>
@@ -414,7 +515,8 @@ export default async function HomePage() {
           <div className="grid gap-4 md:grid-cols-3">
             {trustedWorkers.map((worker, index) => (
               <Reveal key={worker.id} delay={(index % 3) as 0 | 1 | 2} className="h-full">
-                <WorkerCard
+                <LandingWorkerCard
+                  index={index}
                   worker={{
                     ...worker,
                     id: worker.user.id,
@@ -424,35 +526,62 @@ export default async function HomePage() {
             ))}
           </div>
         )}
+      </section>
 
-        <Reveal delay={2}>
-          <div className="mt-12 rounded-[34px] bg-[linear-gradient(135deg,#0F172A_0%,#102A75_100%)] px-6 py-8 text-white shadow-[0_24px_60px_rgba(15,23,42,0.18)] md:px-8">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-200">Start now</p>
-                <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] text-white">
-                  A local hiring experience designed to feel modern, calm, and trustworthy.
+      <section className="section-shell pt-4">
+        <Reveal>
+          <div className="relative overflow-hidden rounded-[42px] border border-[#17306F] bg-[linear-gradient(135deg,#0C1737_0%,#12337B_52%,#2D74F2_100%)] px-6 py-10 text-white shadow-[0_28px_80px_rgba(15,23,42,0.18)] md:px-8">
+            <div className="hero-stars absolute inset-0 opacity-25" />
+            <div className="landing-sheen absolute inset-0 opacity-35" />
+            <div className="hero-glow absolute -left-12 bottom-0 h-40 w-40 rounded-full bg-[#93C5FD]/25 blur-3xl" />
+            <div className="hero-glow absolute right-0 top-0 h-44 w-44 rounded-full bg-[#5EEAD4]/18 blur-3xl" />
+
+            <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-200">Start now</p>
+                <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-white md:text-4xl">
+                  A local hiring platform that feels modern, calm, and trustworthy on a phone.
                 </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
-                  Whether you need help today or want to find reliable gig work, Daily Helper keeps the process direct and professional.
+                <p className="mt-4 text-sm leading-7 text-slate-200 md:text-base">
+                  Whether you need help this week or want to find reliable gig work, Daily Helper now presents the product with stronger hierarchy, cleaner trust cues, and motion that feels deliberate rather than noisy.
                 </p>
               </div>
+
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
                   href={session ? '/jobs' : '/signup'}
-                  className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-[#1F4ED8] transition duration-200 hover:-translate-y-0.5 hover:bg-blue-50"
+                  className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3 text-base font-semibold text-[#1D4ED8] transition duration-200 hover:-translate-y-0.5 hover:bg-blue-50"
                 >
                   <BriefcaseBusiness size={16} />
-                  {session ? 'Browse jobs' : 'Create account'}
+                  {session ? 'Browse Jobs' : 'Create Account'}
                 </Link>
                 <Link
                   href="/jobs"
-                  className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-white/10"
+                  className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-6 py-3 text-base font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-white/12"
                 >
                   <Star size={16} />
-                  Explore marketplace
+                  Explore Marketplace
                 </Link>
               </div>
+            </div>
+
+            <div className="relative mt-8 grid gap-3 sm:grid-cols-3">
+              {[
+                { label: 'Trust-first signals', icon: BadgeCheck },
+                { label: 'Protected contact flow', icon: ShieldCheck },
+                { label: 'Mobile-ready coordination', icon: Sparkles },
+              ].map(({ label, icon: Icon }, index) => (
+                <Reveal key={label} delay={index as 0 | 1 | 2}>
+                  <div className="rounded-[24px] border border-white/12 bg-white/8 p-4 backdrop-blur-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
+                        <Icon size={18} />
+                      </div>
+                      <div className="text-sm font-semibold text-white">{label}</div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </Reveal>
