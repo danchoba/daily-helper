@@ -1,7 +1,17 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BriefcaseBusiness, ClipboardList, CreditCard, ShieldCheck, Star, UserRound, Users, type LucideIcon } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  BriefcaseBusiness,
+  ClipboardList,
+  CreditCard,
+  ShieldCheck,
+  Star,
+  UserRound,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
 import { cn } from '@/lib/utils'
 
@@ -34,44 +44,210 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
   ],
 }
 
+const roleLabels: Record<Role, string> = { CUSTOMER: 'Customer', WORKER: 'Worker', ADMIN: 'Admin' }
+
+const roleGradients: Record<Role, string> = {
+  CUSTOMER: 'from-brand-600 to-accent-600',
+  WORKER: 'from-sage-600 to-brand-500',
+  ADMIN: 'from-orange-500 to-accent-600',
+}
+
+const roleBadgeColors: Record<Role, string> = {
+  CUSTOMER: 'border-brand-200 bg-brand-50 text-brand-700',
+  WORKER: 'border-sage-200 bg-sage-50 text-sage-700',
+  ADMIN: 'border-orange-200 bg-orange-50 text-orange-700',
+}
+
+function NavItem({
+  item,
+  active,
+  index,
+}: {
+  item: { label: string; href: string; icon: LucideIcon }
+  active: boolean
+  index: number
+}) {
+  const Icon = item.icon
+  return (
+    <motion.li
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.15 + index * 0.055, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Link
+        href={item.href}
+        className={cn(
+          'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+          active ? 'text-brand-700 font-semibold' : 'text-earth-600 hover:bg-earth-50 hover:text-earth-900',
+        )}
+        aria-current={active ? 'page' : undefined}
+      >
+        {active && (
+          <motion.div
+            layoutId="sidebar-active-pill"
+            className="absolute inset-0 rounded-xl bg-brand-50"
+            style={{ zIndex: -1 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          />
+        )}
+        <Icon
+          size={16}
+          aria-hidden="true"
+          className={cn(
+            'shrink-0 transition-colors',
+            active ? 'text-brand-600' : 'text-earth-400 group-hover:text-earth-600',
+          )}
+        />
+        <span className="flex-1">{item.label}</span>
+        {active && (
+          <motion.div
+            layoutId="sidebar-active-dot"
+            className="h-1.5 w-1.5 rounded-full bg-brand-500"
+            transition={{ duration: 0.3 }}
+          />
+        )}
+      </Link>
+    </motion.li>
+  )
+}
+
 export function DashboardFrame({ user, children }: DashboardFrameProps) {
   const pathname = usePathname()
   const items = navConfig[user.role]
-  const roleLabel = user.role === 'CUSTOMER' ? 'Customer workspace' : user.role === 'WORKER' ? 'Worker workspace' : 'Admin workspace'
+  const initial = user.name.charAt(0).toUpperCase()
+
+  const isActive = (href: string) => {
+    const exactRoots = ['/dashboard/customer', '/dashboard/worker', '/dashboard/admin']
+    if (exactRoots.includes(href)) return pathname === href
+    return pathname === href || pathname.startsWith(href + '/')
+  }
 
   return (
-    <div className="min-h-screen bg-earth-50">
+    <div className="min-h-screen bg-gradient-to-br from-earth-50 to-earth-100/60">
       <Navbar user={user} />
-      <div className="border-b border-earth-200 bg-white/85 backdrop-blur">
-        <div className="mx-auto w-full max-w-6xl px-4 py-4 md:px-6">
-          <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.14em] text-earth-500">{roleLabel}</div>
-              <div className="mt-1 text-sm text-earth-700">Signed in as <span className="font-semibold text-earth-900">{user.name}</span></div>
+
+      <div className="mx-auto flex w-full max-w-6xl gap-0 px-0 md:gap-6 md:px-6 md:py-6">
+        {/* ── Sidebar (desktop) ── */}
+        <motion.aside
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="hidden w-60 shrink-0 md:block"
+        >
+          <div className="sticky top-24 overflow-hidden rounded-2xl border border-earth-200/80 bg-white shadow-card">
+            {/* Gradient user card */}
+            <div className={`bg-gradient-to-br ${roleGradients[user.role]} p-4`}>
+              <div className="flex items-center gap-3">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/25 text-sm font-black text-white shadow-sm backdrop-blur-sm"
+                >
+                  {initial}
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25, duration: 0.35 }}
+                  className="min-w-0"
+                >
+                  <div className="truncate text-sm font-bold text-white">{user.name}</div>
+                  <div className="text-[11px] font-medium text-white/70">{roleLabels[user.role]}</div>
+                </motion.div>
+              </div>
             </div>
-            <div className="inline-flex self-start rounded-full border border-brand-200 bg-brand-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-700">
-              {user.role}
+
+            {/* Nav links */}
+            <div className="p-2">
+              <nav aria-label="Dashboard navigation">
+                <ul className="space-y-0.5">
+                  {items.map((item, i) => (
+                    <NavItem key={item.href} item={item} active={isActive(item.href)} index={i} />
+                  ))}
+                </ul>
+              </nav>
             </div>
           </div>
-          <div className="flex gap-2 overflow-x-auto">
-            {items.map(({ icon: Icon, ...item }) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'inline-flex shrink-0 items-center gap-2 rounded-xl border border-earth-200 bg-white px-4 py-2.5 text-sm font-semibold text-earth-700 transition-colors hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700',
-                  (pathname === item.href || (item.href !== '/dashboard/customer' && item.href !== '/dashboard/worker' && item.href !== '/dashboard/admin' && pathname.startsWith(item.href))) &&
-                    'border-brand-200 bg-brand-50 text-brand-700 shadow-sm'
-                )}
+        </motion.aside>
+
+        {/* ── Mobile header + tabs ── */}
+        <div className="w-full md:hidden">
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="border-b border-earth-200 bg-white shadow-sm"
+          >
+            <div className={`bg-gradient-to-r ${roleGradients[user.role]} px-4 py-3`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/25 text-xs font-black text-white">
+                    {initial}
+                  </div>
+                  <span className="text-sm font-semibold text-white">{user.name}</span>
+                </div>
+                <span className="rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+                  {roleLabels[user.role]}
+                </span>
+              </div>
+            </div>
+            <div
+              className="flex gap-1.5 overflow-x-auto px-4 py-2 pb-3"
+              role="tablist"
+              aria-label="Dashboard sections"
+            >
+              {items.map(({ icon: Icon, ...item }) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  role="tab"
+                  aria-selected={isActive(item.href)}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                  className={cn(
+                    'inline-flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
+                    isActive(item.href)
+                      ? 'border-brand-200 bg-brand-50 text-brand-700'
+                      : 'border-earth-200 bg-white text-earth-600 hover:border-earth-300 hover:bg-earth-50',
+                  )}
+                >
+                  <Icon size={13} aria-hidden="true" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+
+          <main className="px-4 py-5">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               >
-                <Icon size={15} />
-                {item.label}
-              </Link>
-            ))}
-          </div>
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </main>
         </div>
+
+        {/* ── Desktop content ── */}
+        <main className="hidden min-w-0 flex-1 md:block">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </main>
       </div>
-      <div className="page-shell">{children}</div>
     </div>
   )
 }

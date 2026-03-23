@@ -1,21 +1,31 @@
 import Link from 'next/link'
 import { JobStatus } from '@prisma/client'
-import { MapPin, Search } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from '@/lib/session'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { JobCard } from '@/components/jobs/JobCard'
-import { CategoryFilter } from '@/components/jobs/CategoryFilter'
+import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface PageProps {
-  searchParams: { category?: string; area?: string }
+  searchParams: { category?: string; area?: string; sort?: string }
 }
+
+type SortKey = 'urgency' | 'newest' | 'budget_high' | 'budget_low'
+
+const urgencyOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 }
 
 export default async function JobsPage({ searchParams }: PageProps) {
   const session = await getServerSession()
-  const { category, area } = searchParams
+  const { category, area, sort = 'urgency' } = searchParams
+
+  const orderBy = (() => {
+    if (sort === 'newest') return [{ createdAt: 'desc' as const }]
+    if (sort === 'budget_high') return [{ budget: 'desc' as const }, { createdAt: 'desc' as const }]
+    if (sort === 'budget_low') return [{ budget: 'asc' as const }, { createdAt: 'desc' as const }]
+    return [{ urgency: 'desc' as const }, { createdAt: 'desc' as const }]
+  })()
 
   const [jobs, categories] = await Promise.all([
     prisma.job.findMany({
@@ -29,10 +39,17 @@ export default async function JobsPage({ searchParams }: PageProps) {
         customer: { select: { name: true } },
         _count: { select: { applications: true } },
       },
-      orderBy: [{ urgency: 'desc' }, { createdAt: 'desc' }],
+      orderBy,
     }),
     prisma.category.findMany({ orderBy: { name: 'asc' } }),
   ])
+
+  // Client-side budget sort doesn't affect null budgets well; re-sort in JS for correctness
+  const sortedJobs = sort === 'budget_high'
+    ? [...jobs].sort((a, b) => (b.budget ?? -1) - (a.budget ?? -1))
+    : sort === 'budget_low'
+      ? [...jobs].sort((a, b) => (a.budget ?? Infinity) - (b.budget ?? Infinity))
+      : jobs
 
   return (
     <div className="min-h-screen">
@@ -57,48 +74,24 @@ export default async function JobsPage({ searchParams }: PageProps) {
           ) : null}
         </div>
 
-        <div className="surface-card mb-6 p-4 md:p-5">
-          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="text-sm font-semibold text-earth-900">
-                {jobs.length} open job{jobs.length === 1 ? '' : 's'}
-              </div>
-              <div className="text-sm text-earth-500">
-                {area ? `Filtered by area: ${area}` : 'Use category and area filters to narrow the list.'}
-              </div>
-            </div>
-          </div>
-          <div className="mb-4">
-            <CategoryFilter categories={categories} />
-          </div>
-          <form action="/jobs" className="grid gap-3 md:grid-cols-[1fr,auto]">
-            {category && <input type="hidden" name="category" value={category} />}
-            <label className="relative block">
-              <MapPin size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" />
-              <input
-                type="text"
-                name="area"
-                placeholder="Filter by area"
-                defaultValue={area}
-                className="input pl-10"
-              />
-            </label>
-            <button type="submit" className="btn-outline">
-              <Search size={16} />
-              Apply filters
-            </button>
-          </form>
-        </div>
+        <JobFiltersClient categories={categories} totalJobs={sortedJobs.length} />
 
-        {jobs.length === 0 ? (
+        {sortedJobs.length === 0 ? (
           <EmptyState
             title="No jobs match these filters"
             description="Try another category or area, or check back later as new jobs are posted."
-            action={<Link href={session ? '/dashboard/customer/jobs/new' : '/signup'} className="btn-primary">Post a job</Link>}
+            action={
+              <Link
+                href={session?.role === 'CUSTOMER' ? '/dashboard/customer/jobs/new' : '/signup'}
+                className="btn-primary"
+              >
+                {session?.role === 'CUSTOMER' ? 'Post a job' : 'Get started'}
+              </Link>
+            }
           />
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
-            {jobs.map(job => <JobCard key={job.id} job={job} />)}
+            {sortedJobs.map(job => <JobCard key={job.id} job={job} />)}
           </div>
         )}
       </div>

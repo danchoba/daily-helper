@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/components/ui/Toast'
 
 interface Props {
   profile: { bio?: string | null; area?: string | null; servicesOffered: string[] } | null
@@ -8,16 +9,23 @@ interface Props {
   serviceOptions: string[]
 }
 
+function charCountClass(current: number, max: number) {
+  const pct = current / max
+  if (pct >= 0.95) return 'text-red-500 font-semibold'
+  if (pct >= 0.8) return 'text-orange-500'
+  return 'text-earth-400'
+}
+
 export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Props) {
   const router = useRouter()
+  const toast = useToast()
   const [form, setForm] = useState({
     bio: profile?.bio || '',
     area: profile?.area || '',
     servicesOffered: profile?.servicesOffered || [],
   })
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
+  const [bioError, setBioError] = useState('')
 
   function toggleService(service: string) {
     setForm(current => ({
@@ -30,9 +38,13 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (form.bio && form.bio.trim().length < 10) {
+      setBioError('Bio must be at least 10 characters if provided.')
+      return
+    }
+    setBioError('')
     setLoading(true)
-    setError('')
-    setSuccess(false)
 
     try {
       const res = await fetch('/api/worker/profile', {
@@ -42,20 +54,20 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error || 'Failed to save your profile.')
+        toast.error(data.error || 'Failed to save your profile.')
         return
       }
-      setSuccess(true)
+      toast.success('Profile updated successfully!')
       router.refresh()
     } catch {
-      setError('Something went wrong.')
+      toast.error('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="card space-y-6">
       <div>
         <div className="kicker mb-2">Worker profile</div>
         <h2 className="text-xl font-bold tracking-tight text-earth-950">Present your services clearly</h2>
@@ -66,25 +78,34 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
         Focus on specific services, local area coverage, and the kind of work you reliably complete. This profile is part of your hiring signal.
       </div>
 
-      {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
-      {success && <div className="rounded-xl border border-success-200 bg-success-50 p-4 text-sm text-success-800">Your profile has been updated.</div>}
-
       <div>
-        <label className="label">Bio</label>
+        <label className="label" htmlFor="worker-bio">Bio</label>
         <textarea
-          className="input resize-none"
+          id="worker-bio"
+          className={`input resize-none ${bioError ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : ''}`}
           rows={5}
           value={form.bio}
-          onChange={e => setForm(current => ({ ...current, bio: e.target.value }))}
+          onChange={e => {
+            setForm(current => ({ ...current, bio: e.target.value }))
+            setBioError('')
+          }}
           placeholder="Describe your experience, the kind of work you do well, and what customers can expect when they hire you."
           maxLength={500}
+          aria-describedby={bioError ? 'bio-error' : 'bio-count'}
+          aria-invalid={!!bioError}
         />
-        <p className="mt-1 text-xs text-earth-400">{form.bio.length}/500 characters</p>
+        <div className="mt-1 flex items-start justify-between gap-2">
+          {bioError ? (
+            <p id="bio-error" role="alert" className="text-xs text-red-600">{bioError}</p>
+          ) : <span id="bio-count" />}
+          <span className={`shrink-0 text-xs ${charCountClass(form.bio.length, 500)}`}>{form.bio.length}/500</span>
+        </div>
       </div>
 
       <div>
-        <label className="label">Service area or location</label>
+        <label className="label" htmlFor="worker-area">Service area or location</label>
         <input
+          id="worker-area"
           className="input"
           value={form.area}
           onChange={e => setForm(current => ({ ...current, area: e.target.value }))}
@@ -94,7 +115,7 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
 
       <div>
         <label className="label">Services offered</label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Select services you offer">
           {serviceOptions.map(service => {
             const selected = form.servicesOffered.includes(service)
             return (
@@ -102,6 +123,7 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
                 key={service}
                 type="button"
                 onClick={() => toggleService(service)}
+                aria-pressed={selected}
                 className={`rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors ${
                   selected
                     ? 'border-earth-900 bg-earth-900 text-white'
@@ -113,18 +135,21 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
             )
           })}
         </div>
+        {form.servicesOffered.length === 0 && (
+          <p className="mt-2 text-xs text-earth-400">Select at least one service to improve your profile.</p>
+        )}
       </div>
 
       <div className="rounded-2xl border border-earth-200 bg-earth-50 p-4">
         <label className="label">Phone number <span className="font-normal text-earth-400">(revealed after unlock)</span></label>
-        <input className="input bg-white" value={phoneNumber || 'No phone number on file'} readOnly />
+        <input className="input bg-white" value={phoneNumber || 'No phone number on file'} readOnly aria-readonly="true" />
         <p className="mt-2 text-xs leading-5 text-earth-500">
           Customers only see your phone number after they select you and complete the connection fee process.
         </p>
       </div>
 
       <button type="submit" disabled={loading} className="btn-primary w-full">
-        {loading ? 'Saving profile...' : 'Save profile'}
+        {loading ? 'Saving profile…' : 'Save profile'}
       </button>
     </form>
   )

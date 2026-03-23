@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { ToastProvider } from '@/components/ui/Toast'
 
 export const metadata: Metadata = {
   title: 'Daily Helper - Trusted Local Help in Botswana',
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="min-h-screen bg-[#faf9f7]">{children}</body>
+      <body className="min-h-screen bg-[#faf9f7]">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   )
 }

@@ -6,6 +6,7 @@ import { getServerSession } from '@/lib/session'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Badge } from '@/components/ui/Badge'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { formatBWP, formatDate, timeAgo, urgencyLabel, urgencyColor, jobStatusLabel, statusColor } from '@/lib/utils'
 import { ApplyButton } from './ApplyButton'
 
@@ -38,11 +39,12 @@ export default async function JobDetailPage({ params }: { params: { id: string }
     <div className="min-h-screen">
       <Navbar user={session} />
       <div className="page-shell max-w-4xl">
-        <Link href="/jobs" className="subtle-link inline-flex items-center gap-2">
-          Back to jobs
-        </Link>
+        <Breadcrumbs items={[
+          { label: 'Marketplace', href: '/jobs' },
+          { label: job.title },
+        ]} />
 
-        <div className="card mt-4">
+        <div className="card">
           <div className="mb-5 flex flex-col gap-4 border-b border-earth-200 pb-5 md:flex-row md:items-start md:justify-between">
             <div>
               <div className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-earth-500">{job.category.name}</div>
@@ -65,7 +67,7 @@ export default async function JobDetailPage({ params }: { params: { id: string }
             <div className="muted-panel p-4">
               <div className="kicker mb-1">Location</div>
               <div className="inline-flex items-center gap-1.5 font-semibold text-earth-900">
-                <MapPin size={15} />
+                <MapPin size={15} aria-hidden="true" />
                 {job.area}
               </div>
             </div>
@@ -96,8 +98,9 @@ export default async function JobDetailPage({ params }: { params: { id: string }
               target="_blank"
               rel="noopener noreferrer"
               className="btn-outline"
+              aria-label="Share this job listing on WhatsApp (opens in new tab)"
             >
-              <MessageSquareShare size={16} />
+              <MessageSquareShare size={16} aria-hidden="true" />
               Share on WhatsApp
             </a>
           </div>

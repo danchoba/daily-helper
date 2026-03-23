@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { SelectApplicantButton } from './SelectApplicantButton'
 import { CompleteJobButton } from './CompleteJobButton'
 import { timeAgo } from '@/lib/utils'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export default async function ApplicantsPage({ params }: { params: { id: string } }) {
   const session = await getServerSession()
@@ -31,11 +32,13 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
 
   return (
     <div className="max-w-4xl">
-        <Link href="/dashboard/customer/jobs" className="subtle-link inline-flex items-center gap-2">
-          Back to my jobs
-        </Link>
+        <Breadcrumbs items={[
+          { label: 'Dashboard', href: '/dashboard/customer' },
+          { label: 'My Jobs', href: '/dashboard/customer/jobs' },
+          { label: job.title },
+        ]} />
 
-        <div className="mb-6 mt-3">
+        <div className="mb-6">
           <div className="kicker mb-2">Applicant review</div>
           <h1 className="page-title">{job.title}</h1>
           <p className="mt-2 text-sm leading-6 text-earth-500">

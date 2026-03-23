@@ -4,6 +4,7 @@ import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { appStatusLabel, formatBWP, statusColor, timeAgo } from '@/lib/utils'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export default async function WorkerApplicationsPage() {
   const session = await getServerSession()
@@ -21,8 +22,11 @@ export default async function WorkerApplicationsPage() {
 
   return (
     <div className="max-w-4xl">
-        <Link href="/dashboard/worker" className="subtle-link inline-flex items-center gap-2">Back to dashboard</Link>
-        <div className="mb-6 mt-3">
+        <Breadcrumbs items={[
+          { label: 'Dashboard', href: '/dashboard/worker' },
+          { label: 'My Applications' },
+        ]} />
+        <div className="mb-6">
           <div className="kicker mb-2">Applications</div>
           <h1 className="page-title">My applications</h1>
         </div>

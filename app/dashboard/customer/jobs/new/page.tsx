@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from '@/lib/session'
 import { NewJobForm } from './NewJobForm'
 import { prisma } from '@/lib/prisma'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export default async function NewJobPage() {
   const session = await getServerSession()
@@ -12,8 +12,12 @@ export default async function NewJobPage() {
 
   return (
     <div className="max-w-3xl">
-        <Link href="/dashboard/customer/jobs" className="subtle-link inline-flex items-center gap-2">Back to my jobs</Link>
-        <h1 className="page-title mt-3 mb-6">Post a new job</h1>
+        <Breadcrumbs items={[
+          { label: 'Dashboard', href: '/dashboard/customer' },
+          { label: 'My Jobs', href: '/dashboard/customer/jobs' },
+          { label: 'Post new job' },
+        ]} />
+        <h1 className="page-title mb-6">Post a new job</h1>
         <NewJobForm categories={categories} />
     </div>
   )

@@ -1,10 +1,10 @@
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { BadgeCheck } from 'lucide-react'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { VerificationForm } from './VerificationForm'
 import { formatDate } from '@/lib/utils'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export default async function WorkerVerificationPage() {
   const session = await getServerSession()
@@ -21,8 +21,11 @@ export default async function WorkerVerificationPage() {
 
   return (
     <div className="max-w-3xl">
-        <Link href="/dashboard/worker" className="subtle-link inline-flex items-center gap-2">Back to dashboard</Link>
-        <h1 className="page-title mt-3 mb-2">Verification</h1>
+        <Breadcrumbs items={[
+          { label: 'Dashboard', href: '/dashboard/worker' },
+          { label: 'Verification' },
+        ]} />
+        <h1 className="page-title mb-2">Verification</h1>
         <p className="mb-6 text-sm leading-6 text-earth-500">Build trust with customers by completing the trusted worker verification flow.</p>
 
         {profile?.trustedBadge ? (

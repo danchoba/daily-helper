@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import { redirect, notFound } from 'next/navigation'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { EditJobForm } from './EditJobForm'
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
 export default async function EditJobPage({ params }: { params: { id: string } }) {
   const session = await getServerSession()
@@ -17,8 +17,12 @@ export default async function EditJobPage({ params }: { params: { id: string } }
 
   return (
     <div className="max-w-3xl">
-      <Link href="/dashboard/customer/jobs" className="subtle-link inline-flex items-center gap-2">Back to my jobs</Link>
-      <h1 className="page-title mt-3 mb-6">Edit job</h1>
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/dashboard/customer' },
+        { label: 'My Jobs', href: '/dashboard/customer/jobs' },
+        { label: 'Edit job' },
+      ]} />
+      <h1 className="page-title mb-6">Edit job</h1>
       <EditJobForm job={job} categories={categories} />
     </div>
   )
