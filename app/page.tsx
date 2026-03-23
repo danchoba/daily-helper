@@ -16,6 +16,7 @@ import {
   Users,
   Wrench,
   Zap,
+  Zap,
   type LucideIcon,
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
@@ -79,6 +80,9 @@ export default async function HomePage() {
     }),
     prisma.category.findMany({ take: 8 }),
   ])
+
+  const customerCta = session?.role === 'CUSTOMER' ? '/dashboard/customer/jobs/new' : '/signup'
+  const workerCta = session?.role === 'WORKER' ? '/dashboard/worker' : '/signup?role=worker'
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-earth-900">
@@ -476,16 +480,35 @@ export default async function HomePage() {
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand-500 px-7 text-sm font-bold text-white shadow-glow transition-all hover:-translate-y-0.5 hover:bg-brand-600 hover:shadow-glow-lg"
                 >
                   <BriefcaseBusiness size={16} />
-                  {session ? 'Browse jobs' : 'Create account'}
+                  {session ? 'Browse Jobs' : 'Create Account'}
                 </Link>
                 <Link
                   href="/jobs"
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/8 px-7 text-sm font-bold text-white transition-all hover:bg-white/15"
                 >
                   <Star size={16} />
-                  Explore marketplace
+                  Explore Marketplace
                 </Link>
               </div>
+            </div>
+
+            <div className="relative mt-8 grid gap-3 sm:grid-cols-3">
+              {[
+                { label: 'Trust-first signals', icon: BadgeCheck },
+                { label: 'Protected contact flow', icon: ShieldCheck },
+                { label: 'Mobile-ready coordination', icon: Sparkles },
+              ].map(({ label, icon: Icon }, index) => (
+                <Reveal key={label} delay={index as 0 | 1 | 2}>
+                  <div className="rounded-[24px] border border-white/12 bg-white/8 p-4 backdrop-blur-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
+                        <Icon size={18} />
+                      </div>
+                      <div className="text-sm font-semibold text-white">{label}</div>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
             </div>
           </div>
         </FadeUp>
