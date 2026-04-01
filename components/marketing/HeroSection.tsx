@@ -24,7 +24,7 @@ function AnimatedWord() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -40, opacity: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="block bg-gradient-to-r from-neon-teal via-neon-blue to-accent-400 bg-clip-text text-transparent"
+          className="block bg-gradient-to-r from-amber-300 via-amber-400 to-emerald-400 bg-clip-text text-transparent"
         >
           {WORDS[index]}
         </motion.span>
@@ -78,13 +78,13 @@ function FloatingJobCard({ card, delay, style }: { card: typeof floatingCards[0]
       <motion.div
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 4 + delay, repeat: Infinity, ease: 'easeInOut', delay: delay * 0.5 }}
-        className={`rounded-2xl border bg-gradient-to-br p-4 shadow-glass backdrop-blur-sm ${card.accent}`}
+        className={`rounded-2xl border bg-gradient-to-br p-4 shadow-card ${card.accent}`}
       >
         <div className="mb-2 flex items-center justify-between">
           <span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-earth-600">
             {card.category}
           </span>
-          <span className="flex h-2 w-2 rounded-full" style={{ background: card.dot.replace('bg-', '').includes('brand') ? '#4f46e5' : card.dot.replace('bg-', '').includes('sage') ? '#14b8a6' : '#d946ef' }}>
+          <span className="flex h-2 w-2 rounded-full" style={{ background: card.dot.replace('bg-', '').includes('brand') ? '#f59e0b' : card.dot.replace('bg-', '').includes('sage') ? '#22c55e' : '#f43f5e' }}>
             <motion.span
               className={`absolute h-2 w-2 rounded-full opacity-75 ${card.dot}`}
               animate={{ scale: [1, 2, 1], opacity: [0.75, 0, 0.75] }}
@@ -131,7 +131,7 @@ export function HeroSection({ session }: HeroSectionProps) {
   return (
     <section
       ref={ref}
-      className="relative min-h-[90vh] overflow-hidden bg-[#05061a]"
+      className="relative min-h-[90vh] overflow-hidden bg-[#0f0a03]"
       aria-label="Hero"
     >
       {/* ── Animated gradient orbs ── */}
@@ -139,17 +139,17 @@ export function HeroSection({ session }: HeroSectionProps) {
         <motion.div
           animate={{ scale: [1, 1.2, 1], x: [0, 30, 0], y: [0, -20, 0] }}
           transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -left-48 -top-48 h-[600px] w-[600px] rounded-full bg-brand-600/30 blur-[120px]"
+          className="absolute -left-48 -top-48 h-[600px] w-[600px] rounded-full bg-amber-600/25 blur-[120px]"
         />
         <motion.div
           animate={{ scale: [1, 1.3, 1], x: [0, -40, 0], y: [0, 30, 0] }}
           transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-          className="absolute -right-48 top-0 h-[500px] w-[500px] rounded-full bg-accent-600/25 blur-[100px]"
+          className="absolute -right-48 top-0 h-[500px] w-[500px] rounded-full bg-emerald-700/20 blur-[100px]"
         />
         <motion.div
           animate={{ scale: [1, 1.4, 1], y: [0, -30, 0] }}
           transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut', delay: 6 }}
-          className="absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full bg-sage-500/20 blur-[100px]"
+          className="absolute bottom-0 left-1/3 h-[400px] w-[400px] rounded-full bg-amber-400/15 blur-[100px]"
         />
 
         {/* Grid */}
@@ -159,7 +159,7 @@ export function HeroSection({ session }: HeroSectionProps) {
         {[...Array(12)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute h-1.5 w-1.5 rounded-full bg-white/30"
+            className="absolute h-1.5 w-1.5 rounded-full bg-amber-200/20"
             style={{ left: `${8 + i * 8}%`, top: `${15 + (i % 5) * 15}%` }}
             animate={{ y: [0, -20 - i * 3, 0], opacity: [0.2, 0.8, 0.2] }}
             transition={{ duration: 3 + i * 0.5, repeat: Infinity, delay: i * 0.3 }}
@@ -170,12 +170,12 @@ export function HeroSection({ session }: HeroSectionProps) {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
-          className="absolute right-[5%] top-[10%] h-[280px] w-[280px] rounded-full border border-white/5"
+          className="absolute right-[5%] top-[10%] h-[280px] w-[280px] rounded-full border border-amber-800/10"
         />
         <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-          className="absolute right-[8%] top-[13%] h-[200px] w-[200px] rounded-full border border-brand-400/10"
+          className="absolute right-[8%] top-[13%] h-[200px] w-[200px] rounded-full border border-amber-600/8"
         />
       </div>
 
@@ -261,7 +261,7 @@ export function HeroSection({ session }: HeroSectionProps) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1.4, duration: 0.5 }}
-              className="absolute right-[8%] top-[15%] rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur"
+              className="absolute right-[8%] top-[15%] rounded-2xl border border-amber-900/50 bg-amber-950/60 px-4 py-3 backdrop-blur"
             >
               <div className="text-[10px] font-bold uppercase tracking-widest text-white/50">Active jobs</div>
               <div className="mt-1 text-2xl font-black text-white">240+</div>
@@ -289,9 +289,9 @@ export function HeroSection({ session }: HeroSectionProps) {
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex h-10 w-6 items-start justify-center rounded-full border border-white/20 pt-2"
+            className="flex h-10 w-6 items-start justify-center rounded-full border border-amber-700/30 pt-2"
           >
-            <div className="h-1.5 w-1 rounded-full bg-white/40" />
+            <div className="h-1.5 w-1 rounded-full bg-amber-300/40" />
           </motion.div>
         </motion.div>
       </motion.div>
