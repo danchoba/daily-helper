@@ -46,16 +46,10 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
 
 const roleLabels: Record<Role, string> = { CUSTOMER: 'Customer', WORKER: 'Worker', ADMIN: 'Admin' }
 
-const roleGradients: Record<Role, string> = {
-  CUSTOMER: 'from-brand-600 to-accent-600',
-  WORKER: 'from-sage-600 to-brand-500',
-  ADMIN: 'from-orange-500 to-accent-600',
-}
-
 const roleBadgeColors: Record<Role, string> = {
-  CUSTOMER: 'border-brand-200 bg-brand-50 text-brand-700',
-  WORKER: 'border-sage-200 bg-sage-50 text-sage-700',
-  ADMIN: 'border-orange-200 bg-orange-50 text-orange-700',
+  CUSTOMER: 'border-amber-200 bg-amber-50 text-amber-800',
+  WORKER: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+  ADMIN: 'border-stone-300 bg-stone-100 text-stone-700',
 }
 
 function NavItem({
@@ -123,7 +117,7 @@ export function DashboardFrame({ user, children }: DashboardFrameProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-earth-50 to-earth-100/60">
+    <div className="min-h-screen bg-[#faf9f6]">
       <Navbar user={user} />
 
       <div className="mx-auto flex w-full max-w-6xl gap-0 px-0 md:gap-6 md:px-6 md:py-6">
@@ -135,14 +129,14 @@ export function DashboardFrame({ user, children }: DashboardFrameProps) {
           className="hidden w-60 shrink-0 md:block"
         >
           <div className="sticky top-24 overflow-hidden rounded-2xl border border-earth-200/80 bg-white shadow-card">
-            {/* Gradient user card */}
-            <div className={`bg-gradient-to-br ${roleGradients[user.role]} p-4`}>
+            {/* User card */}
+            <div className="border-b border-earth-100 p-4">
               <div className="flex items-center gap-3">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/25 text-sm font-black text-white shadow-sm backdrop-blur-sm"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-sm font-black text-amber-800"
                 >
                   {initial}
                 </motion.div>
@@ -152,8 +146,8 @@ export function DashboardFrame({ user, children }: DashboardFrameProps) {
                   transition={{ delay: 0.25, duration: 0.35 }}
                   className="min-w-0"
                 >
-                  <div className="truncate text-sm font-bold text-white">{user.name}</div>
-                  <div className="text-[11px] font-medium text-white/70">{roleLabels[user.role]}</div>
+                  <div className="truncate text-sm font-bold text-earth-900">{user.name}</div>
+                  <div className="text-[11px] font-medium text-earth-500">{roleLabels[user.role]}</div>
                 </motion.div>
               </div>
             </div>
@@ -179,15 +173,15 @@ export function DashboardFrame({ user, children }: DashboardFrameProps) {
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="border-b border-earth-200 bg-white shadow-sm"
           >
-            <div className={`bg-gradient-to-r ${roleGradients[user.role]} px-4 py-3`}>
+            <div className="bg-[#1a0f02] px-4 py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/25 text-xs font-black text-white">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-800/40 text-xs font-black text-amber-200">
                     {initial}
                   </div>
                   <span className="text-sm font-semibold text-white">{user.name}</span>
                 </div>
-                <span className="rounded-full bg-white/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+                <span className="rounded-full bg-amber-700/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-200">
                   {roleLabels[user.role]}
                 </span>
               </div>
