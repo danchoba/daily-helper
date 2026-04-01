@@ -85,7 +85,7 @@ export default async function HomePage() {
   const workerCta = session?.role === 'WORKER' ? '/dashboard/worker' : '/signup?role=worker'
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-earth-900">
+    <div className="min-h-screen bg-[#faf9f6] text-earth-900">
       <Navbar user={session} />
 
       {/* ── HERO ── */}
