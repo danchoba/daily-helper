@@ -16,7 +16,6 @@ import {
   Users,
   Wrench,
   Zap,
-  Zap,
   type LucideIcon,
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
@@ -27,6 +26,7 @@ import { JobCard } from '@/components/jobs/JobCard'
 import { WorkerCard } from '@/components/workers/WorkerCard'
 import { HeroSection } from '@/components/marketing/HeroSection'
 import { FadeUp, StaggerChildren, StaggerItem } from '@/components/marketing/MotionSection'
+import { Reveal } from '@/components/marketing/Reveal'
 
 const categoryIcons: Record<string, LucideIcon> = {
   cleaning: Sparkles,
@@ -176,8 +176,8 @@ export default async function HomePage() {
       <section className="relative overflow-hidden border-y border-earth-100 bg-earth-950 py-20 md:py-28">
         {/* BG decoration */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-brand-600/20 blur-[80px]" />
-          <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-accent-600/15 blur-[80px]" />
+          <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-amber-600/20 blur-[80px]" />
+          <div className="absolute -bottom-24 left-1/4 h-80 w-80 rounded-full bg-emerald-600/15 blur-[80px]" />
           <div className="hero-grid absolute inset-0 opacity-10" />
         </div>
 
@@ -366,7 +366,7 @@ export default async function HomePage() {
                           <div
                             key={letter}
                             className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-earth-900 text-xs font-bold"
-                            style={{ background: ['#4f46e5', '#14b8a6', '#d946ef', '#f59e0b'][i] }}
+                            style={{ background: ['#d97706', '#16a34a', '#f43f5e', '#b45309'][i] }}
                           >
                             {letter}
                           </div>
@@ -459,8 +459,8 @@ export default async function HomePage() {
           <div className="relative overflow-hidden rounded-[2.5rem] bg-earth-950 p-10 md:p-14">
             {/* BG decoration */}
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-brand-600/25 blur-[80px]" />
-              <div className="absolute -bottom-20 left-1/3 h-60 w-60 rounded-full bg-accent-600/20 blur-[80px]" />
+              <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-amber-600/25 blur-[80px]" />
+              <div className="absolute -bottom-20 left-1/3 h-60 w-60 rounded-full bg-emerald-600/20 blur-[80px]" />
               <div className="hero-grid absolute inset-0 opacity-10" />
             </div>
 
