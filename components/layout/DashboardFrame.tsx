@@ -46,12 +46,6 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
 
 const roleLabels: Record<Role, string> = { CUSTOMER: 'Customer', WORKER: 'Worker', ADMIN: 'Admin' }
 
-const roleBadgeColors: Record<Role, string> = {
-  CUSTOMER: 'border-amber-200 bg-amber-50 text-amber-800',
-  WORKER: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  ADMIN: 'border-stone-300 bg-stone-100 text-stone-700',
-}
-
 function NavItem({
   item,
   active,
