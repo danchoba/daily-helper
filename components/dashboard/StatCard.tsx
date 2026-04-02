@@ -1,7 +1,6 @@
 'use client'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const GRADIENTS = [
@@ -16,12 +15,12 @@ interface StatCardProps {
   value: string
   description: string
   href: string
-  icon: LucideIcon
+  icon: React.ReactNode
   index?: number
   highlight?: boolean
 }
 
-export function StatCard({ label, value, description, href, icon: Icon, index = 0, highlight }: StatCardProps) {
+export function StatCard({ label, value, description, href, icon, index = 0, highlight }: StatCardProps) {
   const gradient = GRADIENTS[index % GRADIENTS.length]
 
   return (
@@ -54,7 +53,7 @@ export function StatCard({ label, value, description, href, icon: Icon, index = 
               gradient,
             )}
           >
-            <Icon size={18} aria-hidden="true" />
+            {icon}
           </div>
 
           <div className="text-2xl font-extrabold tracking-tight text-earth-950">{value}</div>
