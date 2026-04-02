@@ -4,6 +4,10 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: '**' }
     ]
+  },
+  webpack: (config) => {
+    config.externals.push({ undici: 'commonjs undici' })
+    return config
   }
 }
 module.exports = nextConfig
