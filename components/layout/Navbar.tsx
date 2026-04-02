@@ -32,7 +32,6 @@ export function Navbar({ user }: NavbarProps) {
     : null
 
   const isHeroPage = pathname === '/'
-  const transparent = isHeroPage && !scrolled && !menuOpen
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
   return (
@@ -40,12 +39,7 @@ export function Navbar({ user }: NavbarProps) {
       initial={{ y: -10, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className={cn(
-        'sticky top-0 z-50 transition-all duration-300',
-        transparent
-          ? 'bg-transparent'
-          : 'border-b border-earth-200/60 bg-white/90 shadow-sm backdrop-blur-xl',
-      )}
+      className="sticky top-0 z-50 border-b border-earth-200/60 bg-white/90 shadow-sm backdrop-blur-xl transition-all duration-300"
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 md:px-6">
         {/* Logo */}
@@ -53,18 +47,15 @@ export function Navbar({ user }: NavbarProps) {
           <motion.div
             whileHover={{ scale: 1.05, rotate: -3 }}
             whileTap={{ scale: 0.95 }}
-            className={cn(
-              'flex h-9 w-9 items-center justify-center rounded-xl text-xs font-black tracking-widest transition-colors',
-              transparent ? 'bg-white text-brand-600' : 'bg-brand-600 text-white',
-            )}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-xs font-black tracking-widest text-white"
           >
             DH
           </motion.div>
           <div className="leading-tight">
-            <div className={cn('text-sm font-extrabold tracking-tight transition-colors', transparent ? 'text-white' : 'text-earth-900')}>
+            <div className="text-sm font-extrabold tracking-tight text-earth-900">
               Daily Helper
             </div>
-            <div className={cn('text-[10px] font-medium transition-colors', transparent ? 'text-white/60' : 'text-earth-400')}>
+            <div className="text-[10px] font-medium text-earth-400">
               Trusted local jobs
             </div>
           </div>
@@ -72,27 +63,32 @@ export function Navbar({ user }: NavbarProps) {
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-1 md:flex">
-          {[
-            { href: '/jobs', label: 'Browse Jobs', icon: BriefcaseBusiness },
-            ...(dashboardHref ? [{ href: dashboardHref, label: 'Dashboard', icon: LayoutDashboard }] : []),
-          ].map(({ href, label, icon: Icon }) => (
+          {(isHeroPage
+            ? [
+                { href: '#how-it-works', label: 'How It Works', icon: undefined },
+                { href: '/signup', label: 'For Customers', icon: undefined },
+                { href: '/signup?role=worker', label: 'For Workers', icon: undefined },
+                { href: '#faq', label: 'FAQ', icon: undefined },
+                ...(dashboardHref ? [{ href: dashboardHref, label: 'Dashboard', icon: LayoutDashboard }] : []),
+              ]
+            : [
+                { href: '/jobs', label: 'Browse Jobs', icon: BriefcaseBusiness },
+                ...(dashboardHref ? [{ href: dashboardHref, label: 'Dashboard', icon: LayoutDashboard }] : []),
+              ]
+          ).map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
               className={cn(
                 'relative inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200',
-                transparent
-                  ? isActive(href)
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/80 hover:bg-white/10 hover:text-white'
-                  : isActive(href)
-                    ? 'bg-brand-50 text-brand-700'
-                    : 'text-earth-600 hover:bg-earth-100 hover:text-earth-900',
+                isActive(href)
+                  ? 'bg-brand-50 text-brand-700'
+                  : 'text-earth-600 hover:bg-earth-100 hover:text-earth-900',
               )}
             >
-              <Icon size={15} aria-hidden="true" />
+              {Icon && <Icon size={15} aria-hidden="true" />}
               {label}
-              {isActive(href) && !transparent && (
+              {isActive(href) && (
                 <motion.div
                   layoutId="nav-pill"
                   className="absolute inset-0 -z-10 rounded-xl bg-brand-50"
@@ -108,12 +104,7 @@ export function Navbar({ user }: NavbarProps) {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  className={cn(
-                    'rounded-xl border px-4 py-2 text-sm font-semibold transition-colors',
-                    transparent
-                      ? 'border-white/25 bg-white/10 text-white hover:bg-white/20'
-                      : 'border-earth-200 bg-white text-earth-700 hover:bg-earth-50',
-                  )}
+                  className="rounded-xl border border-earth-200 bg-white px-4 py-2 text-sm font-semibold text-earth-700 transition-colors hover:bg-earth-50"
                 >
                   Sign Out
                 </motion.button>
@@ -122,22 +113,14 @@ export function Navbar({ user }: NavbarProps) {
               <>
                 <Link
                   href="/login"
-                  className={cn(
-                    'rounded-xl px-4 py-2 text-sm font-semibold transition-colors',
-                    transparent ? 'text-white/80 hover:text-white' : 'text-earth-600 hover:text-earth-900',
-                  )}
+                  className="rounded-xl px-4 py-2 text-sm font-semibold text-earth-600 transition-colors hover:text-earth-900"
                 >
                   Log In
                 </Link>
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                   <Link
                     href="/signup"
-                    className={cn(
-                      'inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold shadow-sm transition-all',
-                      transparent
-                        ? 'bg-white text-brand-700 hover:bg-blue-50'
-                        : 'bg-brand-600 text-white shadow-glow-sm hover:bg-brand-700',
-                    )}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white shadow-glow-sm transition-all hover:bg-brand-700"
                   >
                     <Zap size={13} aria-hidden="true" />
                     Get Started
@@ -154,10 +137,7 @@ export function Navbar({ user }: NavbarProps) {
           onClick={() => setMenuOpen(v => !v)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
-          className={cn(
-            'rounded-xl p-2 transition-colors md:hidden',
-            transparent ? 'text-white hover:bg-white/10' : 'text-earth-700 hover:bg-earth-100',
-          )}
+          className="rounded-xl p-2 text-earth-700 transition-colors hover:bg-earth-100 md:hidden"
         >
           <AnimatePresence mode="wait">
             {menuOpen ? (
@@ -184,10 +164,19 @@ export function Navbar({ user }: NavbarProps) {
             className="overflow-hidden border-t border-earth-200/60 bg-white/95 backdrop-blur-xl md:hidden"
           >
             <div className="flex flex-col gap-1 px-4 py-3">
-              {[
-                { href: '/jobs', label: 'Browse Jobs' },
-                ...(dashboardHref ? [{ href: dashboardHref, label: 'Dashboard' }] : []),
-              ].map(({ href, label }, i) => (
+              {(isHeroPage
+                ? [
+                    { href: '#how-it-works', label: 'How It Works' },
+                    { href: '/signup', label: 'For Customers' },
+                    { href: '/signup?role=worker', label: 'For Workers' },
+                    { href: '#faq', label: 'FAQ' },
+                    ...(dashboardHref ? [{ href: dashboardHref, label: 'Dashboard' }] : []),
+                  ]
+                : [
+                    { href: '/jobs', label: 'Browse Jobs' },
+                    ...(dashboardHref ? [{ href: dashboardHref, label: 'Dashboard' }] : []),
+                  ]
+              ).map(({ href, label }, i) => (
                 <motion.div
                   key={href}
                   initial={{ x: -16, opacity: 0 }}

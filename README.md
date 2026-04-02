@@ -4,39 +4,62 @@
 
 ## Tech Stack
 
-- **Framework**: Next.js 14+ with App Router
+- **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS (custom design system)
+- **Styling**: Tailwind CSS (custom warm design system)
+- **Animations**: Framer Motion
 - **Database**: PostgreSQL + Prisma ORM
-- **Auth**: Custom JWT-based auth (jose library)
-- **Architecture**: Mobile-first PWA-ready web app
+- **Auth**: Custom JWT-based auth (jose library) with bcrypt password hashing
+- **File Uploads**: Vercel Blob (`@vercel/blob`) — scoped by worker ID
+- **Email**: Resend (transactional notifications, optional)
+- **Validation**: Zod
+- **Architecture**: Mobile-first, PWA-ready
 
 ## Project Structure
 
 ```
 daily-helper/
-├── app/                     # Next.js App Router pages + API routes
-│   ├── api/                 # REST route handlers
+├── app/
+│   ├── api/
 │   │   ├── auth/            # signin, signup, signout
-│   │   ├── jobs/            # CRUD + apply/select/unlock/review
+│   │   ├── jobs/            # CRUD + apply / select / unlock / review
 │   │   ├── worker/          # profile, verification
-│   │   └── admin/           # verifications, payments, jobs
+│   │   ├── admin/           # verifications, payments, jobs
+│   │   ├── categories/      # job categories list
+│   │   └── upload/          # Vercel Blob file upload (workers only)
 │   ├── dashboard/
-│   │   ├── customer/        # Customer pages
-│   │   ├── worker/          # Worker pages
-│   │   └── admin/           # Admin pages
-│   ├── jobs/                # Public job listing + detail
-│   ├── workers/             # Public worker profiles
-│   ├── login/               # Login page
-│   └── signup/              # Signup page
+│   │   ├── customer/        # post jobs, view applicants, unlock contacts, leave reviews
+│   │   ├── worker/          # browse jobs, manage applications, profile, verification
+│   │   └── admin/           # manage users, verifications, payments, jobs
+│   ├── jobs/                # public job listing + detail + apply
+│   ├── workers/             # public worker profiles
+│   ├── login/
+│   ├── signup/
+│   └── page.tsx             # marketing landing page
 ├── components/
-│   ├── layout/              # Navbar, Footer
-│   ├── jobs/                # JobCard, CategoryFilter
-│   └── ui/                  # Badge, Alert, EmptyState, Loading
-├── lib/                     # Prisma client, auth, session, utils
-├── prisma/                  # schema.prisma + seed.ts
+│   ├── dashboard/           # StatCard
+│   ├── jobs/                # JobCard, CategoryFilter, JobFiltersClient, JobTabs
+│   ├── layout/              # Navbar, Footer, DashboardFrame
+│   ├── marketing/           # HeroSection, MarketplacePreview, LandingJobCard,
+│   │                        # LandingWorkerCard, CTABadges, MotionSection, Reveal
+│   ├── ui/                  # Alert, Badge, Breadcrumbs, Button, Card, EmptyState,
+│   │                        # Input, Loading, PageSkeleton, Select, StarRating,
+│   │                        # Textarea, Toast
+│   └── workers/             # WorkerCard
+├── lib/
+│   ├── auth.ts              # JWT creation + requireRole helper
+│   ├── session.ts           # cookie-based session management
+│   ├── db.ts / prisma.ts    # Prisma client singleton
+│   ├── email.ts             # Resend email helpers (new application, worker selected)
+│   ├── rateLimit.ts         # In-memory IP rate limiter (429 responses)
+│   ├── validators.ts        # Zod schemas
+│   ├── utils.ts             # Shared utilities
+│   └── cn.ts                # Tailwind class merging
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
 ├── public/                  # Static assets + PWA manifest
-└── types/                   # Shared types
+└── types/                   # Shared TypeScript types
 ```
 
 ## Setup Instructions
@@ -67,6 +90,16 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/daily_helper"
 NEXTAUTH_SECRET="your-long-random-secret-key"
 NEXTAUTH_URL="http://localhost:3000"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+Optional variables:
+
+```env
+# Resend — email notifications (new applications, worker selected)
+RESEND_API_KEY="re_..."
+
+# Vercel Blob — worker ID document / photo uploads
+BLOB_READ_WRITE_TOKEN="vercel_blob_..."
 ```
 
 Generate a secret:
@@ -132,14 +165,14 @@ npm run db:studio        # Open Prisma Studio (GUI)
 
 ## MVP Payment Flow (Manual)
 
-> ⚠️ Daily Helper uses **manual payment verification** for the MVP. There is no automated payment gateway.
+> Daily Helper uses **manual payment verification** for the MVP. There is no automated payment gateway.
 
 ### How it works:
 
 **Worker Verification Fee (BWP 50):**
 1. Worker navigates to `/dashboard/worker/verification`
-2. Worker sends BWP 50 via Orange Money/MyZaka to the listed number
-3. Worker submits their transaction reference in the form
+2. Worker uploads their ID document (JPG/PNG/PDF, max 5 MB — stored in Vercel Blob)
+3. Worker sends BWP 50 via Orange Money/MyZaka and submits the transaction reference
 4. Admin reviews the request at `/dashboard/admin/verifications`
 5. Admin clicks **Approve** → worker gets Trusted badge instantly
 
@@ -148,10 +181,29 @@ npm run db:studio        # Open Prisma Studio (GUI)
 2. Customer navigates to `/dashboard/customer/jobs/[id]/unlock`
 3. Customer sends BWP 25 and submits transaction reference
 4. Admin reviews at `/dashboard/admin/payments`
-5. Admin clicks **Approve** (provides Job ID + Worker ID) → contact unlocked
+5. Admin clicks **Approve** → contact details unlocked
 
 ### Why manual?
-This is an intentional MVP trade-off to validate demand before integrating a real payment gateway. In production, integrate with **Orange Money API**, **MyZaka**, or **DPO Group** (Africa-focused gateway).
+Intentional MVP trade-off to validate demand before integrating a real payment gateway. In production, integrate with **Orange Money API**, **MyZaka**, or **DPO Group** (Africa-focused gateway).
+
+---
+
+## Email Notifications
+
+When `RESEND_API_KEY` is set, the app sends two transactional emails:
+
+| Trigger | Recipient | Subject |
+|---------|-----------|---------|
+| Worker applies to a job | Customer | `New applicant for "<job title>"` |
+| Customer selects a worker | Worker | `You've been selected for "<job title>"` |
+
+Emails are silently skipped if the env variable is not set, so local dev works without Resend.
+
+---
+
+## Rate Limiting
+
+Auth endpoints use an in-memory IP-based rate limiter (`lib/rateLimit.ts`). On single-instance deployments this works out of the box. For multi-instance or serverless scale, swap the in-memory store for **Upstash Redis**.
 
 ---
 
@@ -162,7 +214,7 @@ This is an intentional MVP trade-off to validate demand before integrating a rea
 - Workers cannot apply to their own jobs (enforced at API level)
 - Closed/completed/cancelled jobs do not accept new applications
 - Worker phone number is hidden until contact is unlocked via approved payment
-- Only admin-approved verifications grant Trusted badge
+- Only admin-approved verifications grant the Trusted badge
 - Currency displayed in BWP throughout
 
 ---
@@ -171,9 +223,9 @@ This is an intentional MVP trade-off to validate demand before integrating a rea
 
 Key areas to improve post-validation:
 
-1. **Real payment gateway** — integrate Orange Money, MyZaka, or DPO
-2. **File uploads** — use Cloudinary/S3 for ID documents and profile photos
+1. **Real payment gateway** — integrate Orange Money, MyZaka, or DPO Group
+2. **Multi-instance rate limiting** — replace in-memory store with Upstash Redis
 3. **Push notifications** — notify workers of new jobs, customers of applications
-4. **In-app messaging** — before/after unlock
+4. **In-app messaging** — before/after contact unlock
 5. **Location services** — GPS-based job discovery
 6. **Mobile app** — wrap PWA in Capacitor for Android APK distribution
