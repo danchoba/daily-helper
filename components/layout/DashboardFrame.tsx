@@ -130,9 +130,10 @@ export function DashboardFrame({ user, children }: DashboardFrameProps) {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-sm font-black text-amber-800"
+                  className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl"
                 >
-                  {initial}
+                  <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-800" />
+                  <span className="relative text-sm font-black text-white">{initial}</span>
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, x: -8 }}
@@ -167,15 +168,16 @@ export function DashboardFrame({ user, children }: DashboardFrameProps) {
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="border-b border-earth-200 bg-white shadow-sm"
           >
-            <div className="bg-[#1a0f02] px-4 py-3">
+            <div className="bg-earth-950 px-4 py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-800/40 text-xs font-black text-amber-200">
-                    {initial}
+                  <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-800" />
+                    <span className="relative text-xs font-black text-white">{initial}</span>
                   </div>
                   <span className="text-sm font-semibold text-white">{user.name}</span>
                 </div>
-                <span className="rounded-full bg-amber-700/30 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-200">
+                <span className="rounded-full border border-brand-700/40 bg-brand-900/50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-300">
                   {roleLabels[user.role]}
                 </span>
               </div>

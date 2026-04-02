@@ -55,23 +55,28 @@ export default async function JobsPage({ searchParams }: PageProps) {
     <div className="min-h-screen">
       <Navbar user={session} />
       <div className="page-shell">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="kicker mb-2">Marketplace</div>
-            <h1 className="page-title">Open jobs</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-earth-500">
-              Browse active local jobs, review the details, and apply with a short introduction.
-            </p>
+        <div className="mb-8">
+          {/* Header */}
+          <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-brand-200/60 bg-brand-50 px-3 py-1">
+                <span className="text-[10.5px] font-bold uppercase tracking-widest text-brand-600">Marketplace</span>
+              </div>
+              <h1 className="text-3xl font-black tracking-tight text-earth-950 md:text-4xl">Open jobs near you</h1>
+              <p className="mt-2 max-w-lg text-[14px] leading-relaxed text-earth-500">
+                Browse active local listings, check the details, and apply with a short intro.
+              </p>
+            </div>
+            {session?.role === 'CUSTOMER' ? (
+              <Link href="/dashboard/customer/jobs/new" className="btn-primary">
+                Post a job
+              </Link>
+            ) : !session ? (
+              <Link href="/signup" className="btn-primary">
+                Get started free
+              </Link>
+            ) : null}
           </div>
-          {session?.role === 'CUSTOMER' ? (
-            <Link href="/dashboard/customer/jobs/new" className="btn-primary">
-              Post a job
-            </Link>
-          ) : !session ? (
-            <Link href="/signup" className="btn-primary">
-              Create an account
-            </Link>
-          ) : null}
         </div>
 
         <JobFiltersClient categories={categories} totalJobs={sortedJobs.length} />
