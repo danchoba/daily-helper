@@ -12,8 +12,7 @@ export default async function AdminVerificationsPage() {
 
   const requests = await prisma.verificationRequest.findMany({
     include: {
-      worker: { select: { id: true, name: true, email: true } },
-      payment: true,
+      worker: { select: { id: true, name: true, email: true, workerProfile: true } },
     },
     orderBy: { submittedAt: 'desc' },
   })
@@ -49,11 +48,13 @@ export default async function AdminVerificationsPage() {
                   </div>
                   <div className="grid gap-2 text-sm text-earth-500 md:grid-cols-2">
                     <div>Email: <span className="font-medium text-earth-800">{request.worker.email}</span></div>
-                    <div>Payment status: <span className="font-medium text-earth-800">{request.payment?.status || 'No payment record'}</span></div>
-                    <div>
-                      Reference: <span className="rounded bg-earth-100 px-2 py-1 font-mono text-xs text-earth-800">{request.paymentReference}</span>
-                    </div>
                     <div>Submitted: <span className="font-medium text-earth-800">{formatDate(request.submittedAt)}</span></div>
+                    {request.worker.workerProfile?.bio && (
+                      <div className="md:col-span-2">Bio: <span className="font-medium text-earth-800">{request.worker.workerProfile.bio}</span></div>
+                    )}
+                    {request.worker.workerProfile?.area && (
+                      <div>Area: <span className="font-medium text-earth-800">{request.worker.workerProfile.area}</span></div>
+                    )}
                     {request.reviewedAt && <div>Reviewed: <span className="font-medium text-earth-800">{formatDate(request.reviewedAt)}</span></div>}
                   </div>
                 </div>

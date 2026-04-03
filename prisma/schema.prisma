@@ -36,17 +36,6 @@ enum VerificationStatus {
   REJECTED
 }
 
-enum PaymentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum PaymentType {
-  VERIFICATION_FEE
-  CONNECTION_FEE
-}
-
 enum UrgencyLevel {
   LOW
   MEDIUM
@@ -66,14 +55,11 @@ model User {
 
   workerProfile   WorkerProfile?
   customerProfile CustomerProfile?
-  payments        Payment[]
   reviewsGiven    Review[]         @relation("ReviewsGiven")
   reviewsReceived Review[]         @relation("ReviewsReceived")
   jobsPosted      Job[]
   applications    JobApplication[]
   verificationRequests VerificationRequest[]
-  contactUnlocksAsCustomer ContactUnlock[] @relation("UnlocksAsCustomer")
-  contactUnlocksAsWorker   ContactUnlock[] @relation("UnlocksAsWorker")
 }
 
 model WorkerProfile {
@@ -130,7 +116,6 @@ model Job {
   category     Category         @relation(fields: [categoryId], references: [id])
   applications JobApplication[]
   review       Review?
-  contactUnlocks ContactUnlock[]
 }
 
 model JobApplication {
@@ -148,50 +133,16 @@ model JobApplication {
   @@unique([jobId, workerId])
 }
 
-model Payment {
-  id         String        @id @default(cuid())
-  userId     String
-  type       PaymentType
-  amount     Float
-  currency   String        @default("BWP")
-  reference  String
-  proofUrl   String?
-  status     PaymentStatus @default(PENDING)
-  createdAt  DateTime      @default(now())
-  reviewedAt DateTime?
-
-  user          User           @relation(fields: [userId], references: [id])
-  contactUnlock ContactUnlock?
-  verificationRequest VerificationRequest?
-}
-
 model VerificationRequest {
-  id               String             @id @default(cuid())
-  workerId         String
-  idDocumentUrl    String?
-  paymentReference String
-  paymentId        String?            @unique
-  status           VerificationStatus @default(PENDING)
-  submittedAt      DateTime           @default(now())
-  reviewedAt       DateTime?
-  reviewedBy       String?
+  id            String             @id @default(cuid())
+  workerId      String
+  idDocumentUrl String?
+  status        VerificationStatus @default(PENDING)
+  submittedAt   DateTime           @default(now())
+  reviewedAt    DateTime?
+  reviewedBy    String?
 
-  worker  User     @relation(fields: [workerId], references: [id])
-  payment Payment? @relation(fields: [paymentId], references: [id])
-}
-
-model ContactUnlock {
-  id         String   @id @default(cuid())
-  jobId      String
-  customerId String
-  workerId   String
-  paymentId  String   @unique
-  unlockedAt DateTime @default(now())
-
-  job      Job     @relation(fields: [jobId], references: [id])
-  customer User    @relation("UnlocksAsCustomer", fields: [customerId], references: [id])
-  worker   User    @relation("UnlocksAsWorker", fields: [workerId], references: [id])
-  payment  Payment @relation(fields: [paymentId], references: [id])
+  worker User @relation(fields: [workerId], references: [id])
 }
 
 model Review {

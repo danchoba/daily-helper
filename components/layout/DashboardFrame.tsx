@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   BriefcaseBusiness,
   ClipboardList,
-  CreditCard,
   ShieldCheck,
   Star,
   UserRound,
@@ -39,7 +38,6 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
     { label: 'Overview', href: '/dashboard/admin', icon: ClipboardList },
     { label: 'Jobs', href: '/dashboard/admin/jobs', icon: BriefcaseBusiness },
     { label: 'Users', href: '/dashboard/admin/users', icon: Users },
-    { label: 'Payments', href: '/dashboard/admin/payments', icon: CreditCard },
     { label: 'Verifications', href: '/dashboard/admin/verifications', icon: ShieldCheck },
   ],
 }

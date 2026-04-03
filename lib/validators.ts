@@ -1,4 +1,4 @@
-import { JobStatus, PaymentType, UrgencyLevel } from '@prisma/client'
+import { JobStatus, UrgencyLevel } from '@prisma/client'
 import { z } from 'zod'
 
 export const signInSchema = z.object({
@@ -42,25 +42,6 @@ export const workerProfileSchema = z.object({
   servicesOffered: z.array(z.string().trim().min(1).max(60)).max(12).optional(),
 })
 
-export const verificationRequestSchema = z.object({
-  paymentReference: z.string().trim().min(3).max(120),
-  idDocumentUrl: z.string().url().optional().or(z.literal('')).or(z.null()),
-})
-
-export const unlockRequestSchema = z.object({
-  workerId: z.string().min(1),
-  paymentReference: z.string().trim().min(3).max(120),
-})
-
 export const adminActionSchema = z.object({
   action: z.enum(['approve', 'reject']),
-})
-
-export const adminPaymentActionSchema = adminActionSchema.extend({
-  jobId: z.string().optional(),
-  workerId: z.string().optional(),
-})
-
-export const paymentListQuerySchema = z.object({
-  type: z.nativeEnum(PaymentType).optional(),
 })

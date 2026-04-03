@@ -5,18 +5,12 @@ import { Alert } from '@/components/ui/Alert'
 
 export function VerificationForm() {
   const router = useRouter()
-  const [paymentReference, setPaymentReference] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!paymentReference.trim()) {
-      setError('Payment reference is required.')
-      return
-    }
-
     setLoading(true)
     setError('')
 
@@ -24,7 +18,7 @@ export function VerificationForm() {
       const res = await fetch('/api/worker/verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentReference }),
+        body: JSON.stringify({}),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -45,7 +39,7 @@ export function VerificationForm() {
       <div className="card text-center">
         <h2 className="text-2xl font-bold tracking-tight text-earth-950">Request submitted</h2>
         <p className="mt-2 text-sm leading-6 text-earth-600">
-          Your verification request is in the review queue. Your profile will update after an admin confirms the payment and approves the request.
+          Your verification request is in the review queue. Your profile will update after an admin approves it.
         </p>
       </div>
     )
@@ -56,53 +50,37 @@ export function VerificationForm() {
       <Alert variant="info">
         <p className="font-semibold">How verification works</p>
         <p className="mt-1 text-sm leading-6">
-          Pay the one-time verification fee of <strong>BWP 50</strong>, then submit the payment reference below for manual review.
+          Submit a request and an admin will review your profile. Verified workers earn the <strong>Trusted badge</strong>, which increases your chances of being selected.
         </p>
       </Alert>
 
-      <div className="rounded-2xl border border-earth-200 bg-white p-4 text-sm text-earth-600">
-        Use the exact payment reference from your transfer receipt. Reusing or guessing a reference will delay approval.
-      </div>
-
       <div className="card">
-        <div className="kicker mb-2">Payment instructions</div>
-        <h2 className="text-xl font-bold tracking-tight text-earth-950">Verification fee details</h2>
-        <div className="mt-5 space-y-3 text-sm">
-          <div className="flex justify-between border-b border-earth-200 py-2">
-            <span className="text-earth-500">Verification fee</span>
-            <span className="font-semibold text-earth-900">BWP 50.00</span>
+        <div className="kicker mb-2">What you get</div>
+        <h2 className="text-xl font-bold tracking-tight text-earth-950">Trusted badge benefits</h2>
+        <div className="mt-5 space-y-3 text-sm text-earth-600">
+          <div className="flex items-start gap-3 rounded-xl border border-earth-100 bg-earth-50 p-3">
+            <span className="mt-0.5 text-base">✓</span>
+            <span>Your profile is highlighted with a Trusted badge visible to all customers</span>
           </div>
-          <div className="flex justify-between border-b border-earth-200 py-2">
-            <span className="text-earth-500">Orange Money</span>
-            <span className="font-semibold text-earth-900">+267 71 000 001</span>
+          <div className="flex items-start gap-3 rounded-xl border border-earth-100 bg-earth-50 p-3">
+            <span className="mt-0.5 text-base">✓</span>
+            <span>Customers are more likely to select verified workers</span>
           </div>
-          <div className="flex justify-between py-2">
-            <span className="text-earth-500">Reference format</span>
-            <span className="font-semibold text-earth-900">VERIFY-[your name]</span>
+          <div className="flex items-start gap-3 rounded-xl border border-earth-100 bg-earth-50 p-3">
+            <span className="mt-0.5 text-base">✓</span>
+            <span>Your applications stand out in the applicant list</span>
           </div>
         </div>
       </div>
 
       <div className="card">
-        <div className="kicker mb-2">Submit request</div>
-        <h2 className="text-xl font-bold tracking-tight text-earth-950">Send your payment reference</h2>
+        <div className="kicker mb-2">Request verification</div>
+        <h2 className="text-xl font-bold tracking-tight text-earth-950">Apply for the Trusted badge</h2>
         {error && <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
-        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-          <div>
-            <label className="label">Payment reference or transaction ID</label>
-            <input
-              className="input"
-              value={paymentReference}
-              onChange={event => setPaymentReference(event.target.value)}
-              required
-              placeholder="Example: ORANGE-2024-VER-001234"
-            />
-          </div>
-          <Alert variant="warning">
-            <p className="text-sm leading-6">
-              This is a manual payment process. Do not submit multiple requests for the same payment reference.
-            </p>
-          </Alert>
+        <form onSubmit={handleSubmit} className="mt-5">
+          <p className="mb-4 text-sm leading-6 text-earth-600">
+            Make sure your profile is complete (bio, area, and services) before requesting. Admin will review your profile and approve or reject the request.
+          </p>
           <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? 'Submitting request...' : 'Submit verification request'}
           </button>

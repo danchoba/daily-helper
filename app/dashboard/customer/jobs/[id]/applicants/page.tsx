@@ -21,14 +21,12 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
         },
         orderBy: { createdAt: 'asc' },
       },
-      contactUnlocks: { where: { customerId: session.id } },
     },
   })
 
   if (!job) notFound()
 
   const selectedApp = job.applications.find(application => application.status === 'SELECTED')
-  const unlockedWorkerIds = new Set(job.contactUnlocks.map(unlock => unlock.workerId))
 
   return (
     <div className="max-w-4xl">
@@ -68,7 +66,6 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
             {job.applications.map(application => {
               const profile = application.worker.workerProfile
               const isSelected = application.status === 'SELECTED'
-              const isUnlocked = unlockedWorkerIds.has(application.workerId)
 
               return (
                 <div key={application.id} className={`card ${isSelected ? 'border-earth-400' : ''}`}>
@@ -120,22 +117,15 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
 
                   {isSelected && (
                     <div className="mt-4 border-t border-earth-200 pt-4">
-                      {isUnlocked ? (
-                        <div className="rounded-xl border border-sage-200 bg-sage-50 p-4">
-                          <p className="text-sm font-semibold text-sage-800">Contact unlocked</p>
-                          <p className="mt-1 text-sm text-sage-700">{application.worker.phoneNumber || 'No phone number on file'}</p>
-                        </div>
-                      ) : (
-                        <div className="rounded-xl border border-earth-200 bg-earth-50 p-4">
-                          <p className="text-sm font-semibold text-earth-900">Unlock contact details</p>
-                          <p className="mt-1 text-sm leading-6 text-earth-600">
-                            Pay the BWP 25 connection fee to reveal {application.worker.name}&rsquo;s phone number and coordinate directly.
-                          </p>
-                          <Link href={`/dashboard/customer/jobs/${job.id}/unlock?workerId=${application.workerId}`} className="btn-primary mt-3">
-                            Unlock contact
-                          </Link>
-                        </div>
-                      )}
+                      <div className="rounded-xl border border-sage-200 bg-sage-50 p-4">
+                        <p className="text-sm font-semibold text-sage-800">Contact details</p>
+                        <p className="mt-1 text-base font-bold text-sage-900">
+                          {application.worker.phoneNumber || 'No phone number on file'}
+                        </p>
+                        <p className="mt-1 text-xs text-sage-600">
+                          Reach out directly to coordinate the job.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>

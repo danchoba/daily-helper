@@ -77,15 +77,15 @@ const faqs = [
   },
   {
     q: 'Is there a verification process?',
-    a: 'Yes. Workers submit their ID and pay a one-time BWP 50 fee to receive a Trusted badge. An admin reviews each submission before approving. Customers can filter for trusted workers only.',
+    a: 'Yes. Workers can apply for a Trusted badge by submitting a verification request. An admin reviews each submission before approving. Verified workers are highlighted across the platform.',
   },
   {
     q: 'How are workers paid?',
-    a: 'Payment is arranged directly between customers and workers after contact is unlocked. Daily Helper facilitates the connection via a small BWP 25 contact fee paid by the customer.',
+    a: 'Payment is arranged directly between the customer and worker. Once you select a helper, their contact details are revealed immediately so you can coordinate the job directly.',
   },
   {
     q: 'Is Daily Helper free to join?',
-    a: 'Signing up is completely free for both customers and workers. Customers pay a BWP 25 connection fee when they choose to unlock a worker\'s contact details. Workers pay a one-time BWP 50 to get their Trusted badge.',
+    a: 'Yes — signing up is completely free for both customers and workers. Post jobs, browse helpers, and connect with no fees.',
   },
 ]
 
@@ -225,7 +225,7 @@ export function LandingSections({ session, stats }: LandingSectionsProps) {
                   step: '02',
                   icon: Users,
                   title: 'Choose Your Helper',
-                  desc: 'Review profiles, ratings, and experience. Unlock contact details for the helper you want.',
+                  desc: 'Review profiles, ratings, and experience. Select the helper you want and get their contact details instantly.',
                   accent: 'bg-sage-600',
                   cardBg: 'bg-white',
                   iconBg: 'bg-sage-50',
@@ -364,7 +364,7 @@ export function LandingSections({ session, stats }: LandingSectionsProps) {
                   {[
                     'Post a job in under 2 minutes',
                     'Browse rated, ID-verified workers',
-                    'Unlock contact for only BWP 25',
+                    'Get contact details instantly when you select a helper',
                     'Leave a review after the job',
                   ].map(item => (
                     <li key={item} className="flex items-start gap-3">
@@ -405,7 +405,7 @@ export function LandingSections({ session, stats }: LandingSectionsProps) {
                 <ul className="mb-8 space-y-3.5">
                   {[
                     'Free to sign up and browse jobs',
-                    'Get a Trusted badge for only BWP 50',
+                    'Apply for a Trusted badge to stand out',
                     'Apply to jobs that match your skills',
                     'Build reviews and grow your profile',
                   ].map(item => (

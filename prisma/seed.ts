@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, JobStatus, ApplicationStatus, VerificationStatus, PaymentStatus, PaymentType, UrgencyLevel } from '@prisma/client'
+import { PrismaClient, UserRole, JobStatus, ApplicationStatus, VerificationStatus, UrgencyLevel } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -21,7 +21,7 @@ async function main() {
   const hash = (pw: string) => bcrypt.hashSync(pw, 10)
 
   // Admin
-  const admin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'admin@dailyhelper.bw' },
     update: {},
     create: {
@@ -203,38 +203,14 @@ async function main() {
   })
 
   // Pending verification request for worker2
-  const verifyPayment = await prisma.payment.create({
-    data: {
-      userId: worker2.id,
-      type: PaymentType.VERIFICATION_FEE,
-      amount: 50,
-      currency: 'BWP',
-      reference: 'ORANGE-2024-VER-001',
-      status: PaymentStatus.PENDING,
-    }
-  })
   await prisma.verificationRequest.create({
     data: {
       workerId: worker2.id,
-      paymentReference: 'ORANGE-2024-VER-001',
-      paymentId: verifyPayment.id,
       status: VerificationStatus.PENDING,
     }
   })
 
-  // Connection fee payment (pending) for job2 (worker1 selected)
-  const connPayment = await prisma.payment.create({
-    data: {
-      userId: customer1.id,
-      type: PaymentType.CONNECTION_FEE,
-      amount: 25,
-      currency: 'BWP',
-      reference: 'ORANGE-2024-CON-001',
-      status: PaymentStatus.PENDING,
-    }
-  })
-
-  // Review for completed job
+  // Completed job with review
   const completedJob = await prisma.job.create({
     data: {
       customerId: customer1.id,

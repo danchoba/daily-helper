@@ -12,7 +12,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     const verificationRequest = await prisma.verificationRequest.findUnique({
       where: { id: params.id },
-      include: { payment: true },
     })
 
     if (!verificationRequest) {
@@ -34,16 +33,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           trustedBadge: data.action === 'approve',
         },
       })
-
-      if (verificationRequest.paymentId) {
-        await tx.payment.update({
-          where: { id: verificationRequest.paymentId },
-          data: {
-            status: data.action === 'approve' ? 'APPROVED' : 'REJECTED',
-            reviewedAt: new Date(),
-          },
-        })
-      }
     })
 
     return NextResponse.json({ success: true })
