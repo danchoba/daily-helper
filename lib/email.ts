@@ -49,7 +49,7 @@ export async function sendApplicationSelectedEmail(params: {
     html: `
       <p>Hi ${params.workerName},</p>
       <p>Great news! <strong>${params.customerName}</strong> has selected you for the job <strong>${params.jobTitle}</strong>.</p>
-      <p>The customer will now arrange payment to unlock your contact details. You'll hear from them soon.</p>
+      <p>The customer can now see your contact details and will reach out directly. You'll hear from them soon.</p>
       <p>
         <a href="${APP_URL}/dashboard/worker/applications" style="background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;">
           View your applications
