@@ -33,28 +33,28 @@ export default async function WorkerDashboard() {
       value: openJobs.toString(),
       href: '/dashboard/worker/jobs',
       icon: <BriefcaseBusiness size={18} aria-hidden="true" />,
-      description: 'Browse available work in the marketplace',
+      description: openJobs > 0 ? `${openJobs} job${openJobs !== 1 ? 's' : ''} waiting — apply now` : 'No open jobs at the moment',
     },
     {
       label: 'Pending applications',
       value: pendingApps.toString(),
       href: '/dashboard/worker/applications',
       icon: <ClipboardList size={18} aria-hidden="true" />,
-      description: 'Applications awaiting a customer decision',
+      description: pendingApps > 0 ? `${pendingApps} application${pendingApps !== 1 ? 's' : ''} awaiting a decision` : 'No pending applications',
     },
     {
       label: 'Selected',
       value: acceptedApps.toString(),
       href: '/dashboard/worker/applications',
       icon: <CheckCircle2 size={18} aria-hidden="true" />,
-      description: 'Applications the customer shortlisted',
+      description: acceptedApps > 0 ? `${acceptedApps} job${acceptedApps !== 1 ? 's' : ''} you've been shortlisted for` : 'Not shortlisted yet',
     },
     {
       label: 'Profile',
       value: profile?.bio ? 'Complete' : 'Needs update',
       href: '/dashboard/worker/profile',
       icon: <UserRound size={18} aria-hidden="true" />,
-      description: 'Keep your profile clear and credible',
+      description: profile?.bio ? 'Profile is complete — edit anytime' : 'Incomplete profile reduces visibility',
     },
   ]
 
@@ -71,16 +71,32 @@ export default async function WorkerDashboard() {
             Monitor applications, build your profile, and earn the trusted badge.
           </p>
         </div>
-        {profile?.trustedBadge ? (
-          <div className="inline-flex items-center gap-2 rounded-full border border-sage-200 bg-sage-50 px-4 py-2 text-sm font-bold text-sage-700">
-            <FileCheck2 size={15} />
-            Trusted worker
-          </div>
-        ) : (
-          <Link href="/dashboard/worker/verification" className="btn-outline">
-            Request verification
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Availability badge */}
+          <Link
+            href="/dashboard/worker/profile"
+            className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-colors hover:opacity-80 ${
+              profile?.isAvailable !== false
+                ? 'border-sage-200 bg-sage-50 text-sage-700'
+                : 'border-earth-200 bg-earth-100 text-earth-500'
+            }`}
+            title="Change in Profile settings"
+          >
+            <span className={`h-2 w-2 rounded-full ${profile?.isAvailable !== false ? 'bg-sage-500' : 'bg-earth-400'}`} />
+            {profile?.isAvailable !== false ? 'Available for work' : 'Unavailable'}
           </Link>
-        )}
+
+          {profile?.trustedBadge ? (
+            <div className="inline-flex items-center gap-2 rounded-full border border-sage-200 bg-sage-50 px-4 py-2 text-sm font-bold text-sage-700">
+              <FileCheck2 size={15} />
+              Trusted worker
+            </div>
+          ) : (
+            <Link href="/dashboard/worker/verification" className="btn-outline">
+              Request verification
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Profile + stats summary */}

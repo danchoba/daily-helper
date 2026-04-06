@@ -59,6 +59,10 @@ export function StatCard({ label, value, description, href, icon, index = 0, hig
           <div className="text-2xl font-extrabold tracking-tight text-earth-950">{value}</div>
           <div className="mt-1 text-sm font-semibold text-earth-800">{label}</div>
           <div className="mt-1.5 text-xs leading-5 text-earth-400">{description}</div>
+          <div className="mt-3 flex items-center gap-1 text-xs font-bold text-earth-300 transition-colors duration-200 group-hover:text-brand-500">
+            View
+            <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+          </div>
         </motion.div>
       </Link>
     </motion.div>

@@ -44,14 +44,15 @@ enum UrgencyLevel {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  role         UserRole @default(CUSTOMER)
-  name         String
-  email        String   @unique
-  phoneNumber  String?
-  passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  role                UserRole @default(CUSTOMER)
+  name                String
+  email               String   @unique
+  phoneNumber         String?
+  passwordHash        String
+  hasSeenOnboarding   Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   workerProfile   WorkerProfile?
   customerProfile CustomerProfile?
@@ -73,6 +74,7 @@ model WorkerProfile {
   verificationStatus VerificationStatus @default(NONE)
   averageRating      Float              @default(0)
   jobsCompleted      Int                @default(0)
+  isAvailable        Boolean            @default(true)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
@@ -109,6 +111,7 @@ model Job {
   preferredDate DateTime?
   urgency       UrgencyLevel @default(MEDIUM)
   status        JobStatus    @default(OPEN)
+  expiresAt     DateTime?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 

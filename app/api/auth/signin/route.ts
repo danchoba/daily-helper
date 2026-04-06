@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createToken, getUserFromDb, verifyPassword } from '@/lib/auth'
 import { signInSchema } from '@/lib/validators'
+import { rateLimit } from '@/lib/rateLimit'
 import { z } from 'zod'
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimit(req, { limit: 10, windowMs: 60_000 })
+  if (limited) return limited
+
   try {
     const data = signInSchema.parse(await req.json())
     const user = await getUserFromDb(data.email.toLowerCase())

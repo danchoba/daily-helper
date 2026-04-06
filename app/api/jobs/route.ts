@@ -45,6 +45,8 @@ export async function POST(req: NextRequest) {
     const session = await requireRole(req, 'CUSTOMER')
     const data = jobInputSchema.parse(await req.json())
 
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+
     const job = await prisma.job.create({
       data: {
         customerId: session.id,
@@ -56,6 +58,7 @@ export async function POST(req: NextRequest) {
         preferredDate: parsePreferredDate(data.preferredDate ?? null),
         urgency: data.urgency || UrgencyLevel.MEDIUM,
         status: JobStatus.OPEN,
+        expiresAt,
       },
     })
 

@@ -4,8 +4,12 @@ import { z } from 'zod'
 import { createToken, hashPassword } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { signUpSchema } from '@/lib/validators'
+import { rateLimit } from '@/lib/rateLimit'
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimit(req, { limit: 5, windowMs: 60_000 })
+  if (limited) return limited
+
   try {
     const data = signUpSchema.parse(await req.json())
     const normalizedEmail = data.email.toLowerCase()

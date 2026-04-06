@@ -15,7 +15,6 @@ export default async function WorkerVerificationPage() {
     prisma.verificationRequest.findFirst({
       where: { workerId: session.id },
       orderBy: { submittedAt: 'desc' },
-      include: { payment: true },
     }),
   ])
 
@@ -52,13 +51,9 @@ export default async function WorkerVerificationPage() {
                   Pending review
                 </span>
               </div>
-              <div className="flex justify-between border-b border-earth-200 py-2">
+              <div className="flex justify-between py-2">
                 <span className="text-earth-500">Submitted</span>
                 <span className="font-medium text-earth-900">{formatDate(verRequest.submittedAt)}</span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span className="text-earth-500">Payment reference</span>
-                <span className="font-mono text-xs text-earth-800">{verRequest.paymentReference}</span>
               </div>
             </div>
             <p className="mt-4 text-sm text-earth-500">An admin reviews verification requests manually. This usually takes one to two business days.</p>
@@ -67,7 +62,7 @@ export default async function WorkerVerificationPage() {
           <div className="space-y-4">
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
               <p className="font-semibold text-red-700">Previous verification request rejected</p>
-              <p className="mt-1 text-sm text-red-600">Review the payment details and submit a new request when ready.</p>
+              <p className="mt-1 text-sm text-red-600">You can submit a new request below.</p>
             </div>
             <VerificationForm />
           </div>

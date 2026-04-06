@@ -40,6 +40,7 @@ export const workerProfileSchema = z.object({
   area: z.string().trim().max(120).optional(),
   profilePhotoUrl: z.string().url().optional().or(z.literal('')).or(z.null()),
   servicesOffered: z.array(z.string().trim().min(1).max(60)).max(12).optional(),
+  isAvailable: z.boolean().optional(),
 })
 
 export const adminActionSchema = z.object({

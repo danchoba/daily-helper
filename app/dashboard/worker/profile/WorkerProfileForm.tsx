@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/Toast'
 
 interface Props {
-  profile: { bio?: string | null; area?: string | null; servicesOffered: string[] } | null
+  profile: { bio?: string | null; area?: string | null; servicesOffered: string[]; isAvailable?: boolean } | null
   phoneNumber: string
   serviceOptions: string[]
 }
@@ -23,6 +23,7 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
     bio: profile?.bio || '',
     area: profile?.area || '',
     servicesOffered: profile?.servicesOffered || [],
+    isAvailable: profile?.isAvailable ?? true,
   })
   const [loading, setLoading] = useState(false)
   const [bioError, setBioError] = useState('')
@@ -140,11 +141,42 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
         )}
       </div>
 
+      {/* Availability toggle */}
       <div className="rounded-2xl border border-earth-200 bg-earth-50 p-4">
-        <label className="label">Phone number <span className="font-normal text-earth-400">(revealed after unlock)</span></label>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold text-earth-900">Available for work</p>
+            <p className="mt-0.5 text-xs leading-5 text-earth-500">
+              When off, your profile won&apos;t appear in worker listings and you won&apos;t receive new job matches.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={form.isAvailable}
+            onClick={() => setForm(current => ({ ...current, isAvailable: !current.isAvailable }))}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 ${
+              form.isAvailable ? 'bg-sage-500' : 'bg-earth-300'
+            }`}
+          >
+            <span className="sr-only">Toggle availability</span>
+            <span
+              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ${
+                form.isAvailable ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+        <p className={`mt-3 text-xs font-semibold ${form.isAvailable ? 'text-sage-600' : 'text-earth-400'}`}>
+          {form.isAvailable ? '✓ You are visible and open to new jobs' : '✕ You are hidden from new job listings'}
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-earth-200 bg-earth-50 p-4">
+        <label className="label">Phone number <span className="font-normal text-earth-400">(shown when selected)</span></label>
         <input className="input bg-white" value={phoneNumber || 'No phone number on file'} readOnly aria-readonly="true" />
         <p className="mt-2 text-xs leading-5 text-earth-500">
-          Customers only see your phone number after they select you and complete the connection fee process.
+          Your phone number is revealed to a customer as soon as they select you for a job.
         </p>
       </div>
 

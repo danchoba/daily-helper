@@ -31,21 +31,21 @@ export default async function CustomerDashboard() {
       value: activeJobs.toString(),
       href: '/dashboard/customer/jobs',
       icon: <ClipboardList size={18} aria-hidden="true" />,
-      description: 'Jobs currently open or in progress',
+      description: activeJobs > 0 ? `${activeJobs} job${activeJobs !== 1 ? 's' : ''} open or in progress — manage now` : 'No active jobs — post one to get started',
     },
     {
       label: 'Post a new job',
       value: 'New +',
       href: '/dashboard/customer/jobs/new',
       icon: <Plus size={18} aria-hidden="true" />,
-      description: 'Publish a listing for workers nearby',
+      description: 'Create a listing and reach local workers',
     },
     {
       label: 'Review activity',
       value: 'Manage',
       href: '/dashboard/customer/reviews',
       icon: <MessageSquareText size={18} aria-hidden="true" />,
-      description: 'Track completed work and feedback',
+      description: completedJobs > 0 ? `${completedJobs} completed job${completedJobs !== 1 ? 's' : ''} — leave a review` : 'Reviews appear after jobs are completed',
     },
   ]
 

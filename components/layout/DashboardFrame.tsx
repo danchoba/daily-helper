@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
+import { OnboardingModal } from '@/components/onboarding/OnboardingModal'
 import { cn } from '@/lib/utils'
 
 type Role = 'CUSTOMER' | 'WORKER' | 'ADMIN'
@@ -19,6 +20,7 @@ type Role = 'CUSTOMER' | 'WORKER' | 'ADMIN'
 interface DashboardFrameProps {
   user: { id: string; name: string; role: Role }
   children: React.ReactNode
+  showOnboarding?: boolean
 }
 
 const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[]> = {
@@ -97,7 +99,7 @@ function NavItem({
   )
 }
 
-export function DashboardFrame({ user, children }: DashboardFrameProps) {
+export function DashboardFrame({ user, children, showOnboarding = false }: DashboardFrameProps) {
   const pathname = usePathname()
   const items = navConfig[user.role]
   const initial = user.name.charAt(0).toUpperCase()
@@ -110,6 +112,11 @@ export function DashboardFrame({ user, children }: DashboardFrameProps) {
 
   return (
     <div className="min-h-screen bg-[#faf9f6]">
+      {/* One-time onboarding modal — only shown to users who haven't seen it yet */}
+      {showOnboarding && (user.role === 'WORKER' || user.role === 'CUSTOMER') && (
+        <OnboardingModal role={user.role} userName={user.name} />
+      )}
+
       <Navbar user={user} />
 
       <div className="mx-auto flex w-full max-w-6xl gap-0 px-0 md:gap-6 md:px-6 md:py-6">

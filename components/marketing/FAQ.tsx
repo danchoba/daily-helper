@@ -10,15 +10,15 @@ const FAQS = [
   },
   {
     q: 'Is there a verification process?',
-    a: 'Yes. Workers submit their ID and pay a one-time BWP 50 fee to receive a Trusted badge. An admin reviews each submission before approving. Customers can filter for trusted workers only.',
+    a: 'Yes. Workers can apply for a Trusted badge by submitting a verification request. An admin reviews each submission before approving. Verified workers are highlighted across the platform.',
   },
   {
-    q: 'How are workers paid?',
-    a: 'Payment is arranged directly between customers and workers after contact is unlocked. Daily Helper facilitates the connection via a small BWP 25 contact fee paid by the customer.',
+    q: 'How do I contact a worker?',
+    a: "Once you've reviewed applicants and selected the right worker, their phone number is revealed immediately. You can then reach out directly to coordinate the job.",
   },
   {
     q: 'Is Daily Helper free to join?',
-    a: "Signing up is completely free for both customers and workers. Customers pay a BWP 25 connection fee when they choose to unlock a worker's contact details. Workers pay a one-time BWP 50 to get their Trusted badge.",
+    a: 'Yes — signing up is completely free for both customers and workers. Post jobs, browse helpers, and connect with no fees.',
   },
 ]
 
