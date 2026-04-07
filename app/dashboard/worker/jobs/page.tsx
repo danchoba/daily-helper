@@ -4,17 +4,17 @@ import { CheckCircle2 } from 'lucide-react'
 import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { JobCard } from '@/components/jobs/JobCard'
-import { CategoryFilter } from '@/components/jobs/CategoryFilter'
+import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface PageProps {
-  searchParams: { category?: string; area?: string }
+  searchParams: { category?: string; area?: string; q?: string }
 }
 
 export default async function WorkerBrowseJobsPage({ searchParams }: PageProps) {
   const session = await getServerSession()
   if (!session || session.role !== 'WORKER') redirect('/login')
-  const { category, area } = searchParams
+  const { category, area, q } = searchParams
 
   const myApplications = await prisma.jobApplication.findMany({
     where: { workerId: session.id },
@@ -28,6 +28,12 @@ export default async function WorkerBrowseJobsPage({ searchParams }: PageProps) 
         status: 'OPEN',
         ...(category ? { category: { slug: category } } : {}),
         ...(area ? { area: { contains: area, mode: 'insensitive' } } : {}),
+        ...(q ? {
+          OR: [
+            { title: { contains: q, mode: 'insensitive' } },
+            { description: { contains: q, mode: 'insensitive' } },
+          ],
+        } : {}),
       },
       include: { category: true, customer: { select: { name: true } }, _count: { select: { applications: true } } },
       orderBy: [{ urgency: 'desc' }, { createdAt: 'desc' }],
@@ -44,19 +50,11 @@ export default async function WorkerBrowseJobsPage({ searchParams }: PageProps) 
           <h1 className="page-title">Browse jobs</h1>
         </div>
 
-        <div className="surface-card mb-6 p-4 md:p-5">
-          <div className="mb-4 grid gap-3 md:grid-cols-2">
-            <div>
-              <div className="text-sm font-semibold text-earth-900">{jobs.length} jobs currently open</div>
-              <div className="text-sm text-earth-500">Use the category filter to narrow the list and focus on relevant work.</div>
-            </div>
-            <div className="rounded-2xl border border-earth-200 bg-white px-4 py-3 text-sm">
-              <div className="kicker mb-1">Already applied</div>
-              <div className="font-semibold text-earth-900">{appliedCount} jobs</div>
-            </div>
-          </div>
-          <CategoryFilter categories={categories} />
-        </div>
+        <JobFiltersClient
+          categories={categories}
+          totalJobs={jobs.length}
+          basePath="/dashboard/worker/jobs"
+        />
 
         {jobs.length === 0 ? (
           <EmptyState

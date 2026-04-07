@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { requireRole } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { adminActionSchema } from '@/lib/validators'
+import { sendVerificationApprovedEmail, sendVerificationRejectedEmail } from '@/lib/email'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -12,6 +13,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
     const verificationRequest = await prisma.verificationRequest.findUnique({
       where: { id: params.id },
+      include: { worker: { select: { email: true, name: true } } },
     })
 
     if (!verificationRequest) {
@@ -34,6 +36,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         },
       })
     })
+
+    const { email, name } = verificationRequest.worker
+    if (data.action === 'approve') {
+      await sendVerificationApprovedEmail({ workerEmail: email, workerName: name })
+    } else {
+      await sendVerificationRejectedEmail({ workerEmail: email, workerName: name })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error: unknown) {

@@ -5,6 +5,9 @@ import { prisma } from '@/lib/prisma'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { appStatusLabel, formatBWP, statusColor, timeAgo } from '@/lib/utils'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
+import { WithdrawApplicationButton } from './WithdrawApplicationButton'
+import { RaiseDisputeButton } from '@/components/disputes/RaiseDisputeButton'
+import { MessageButton } from '@/components/messages/MessageButton'
 
 export default async function WorkerApplicationsPage() {
   const session = await getServerSession()
@@ -62,12 +65,27 @@ export default async function WorkerApplicationsPage() {
 
                 <div className="flex flex-col gap-2 border-t border-earth-200 pt-4 text-sm text-earth-500 md:flex-row md:items-center md:justify-between">
                   <span>Budget: <span className="font-semibold text-earth-900">{formatBWP(application.job.budget)}</span></span>
-                  <span>Applied {timeAgo(application.createdAt)}</span>
+                  <div className="flex items-center gap-3">
+                    <span>Applied {timeAgo(application.createdAt)}</span>
+                    {application.status === 'PENDING' && (
+                      <WithdrawApplicationButton jobId={application.jobId} />
+                    )}
+                  </div>
                 </div>
 
                 {application.status === 'SELECTED' && (
-                  <div className="mt-4 rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm text-sage-800">
-                    You have been selected for this job. The customer can now unlock your contact details to coordinate directly.
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-xl border border-sage-200 bg-sage-50 p-4 text-sm text-sage-800">
+                      You have been selected for this job. The customer can now unlock your contact details to coordinate directly.
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <MessageButton
+                        jobId={application.jobId}
+                        workerId={application.workerId}
+                        basePath="/dashboard/worker"
+                      />
+                      <RaiseDisputeButton jobId={application.jobId} />
+                    </div>
                   </div>
                 )}
               </div>

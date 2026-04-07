@@ -4,6 +4,7 @@ import { getServerSession } from '@/lib/session'
 import { prisma } from '@/lib/prisma'
 import { SelectApplicantButton } from './SelectApplicantButton'
 import { CompleteJobButton } from './CompleteJobButton'
+import { MessageButton } from '@/components/messages/MessageButton'
 import { timeAgo } from '@/lib/utils'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 
@@ -116,7 +117,7 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
                   )}
 
                   {isSelected && (
-                    <div className="mt-4 border-t border-earth-200 pt-4">
+                    <div className="mt-4 border-t border-earth-200 pt-4 space-y-3">
                       <div className="rounded-xl border border-sage-200 bg-sage-50 p-4">
                         <p className="text-sm font-semibold text-sage-800">Contact details</p>
                         <p className="mt-1 text-base font-bold text-sage-900">
@@ -126,6 +127,11 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
                           Reach out directly to coordinate the job.
                         </p>
                       </div>
+                      <MessageButton
+                        jobId={job.id}
+                        workerId={application.workerId}
+                        basePath="/dashboard/customer"
+                      />
                     </div>
                   )}
                 </div>

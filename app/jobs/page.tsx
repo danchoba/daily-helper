@@ -9,7 +9,7 @@ import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
 import { EmptyState } from '@/components/ui/EmptyState'
 
 interface PageProps {
-  searchParams: { category?: string; area?: string; sort?: string }
+  searchParams: { category?: string; area?: string; sort?: string; q?: string }
 }
 
 type SortKey = 'urgency' | 'newest' | 'budget_high' | 'budget_low'
@@ -18,7 +18,7 @@ const urgencyOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LO
 
 export default async function JobsPage({ searchParams }: PageProps) {
   const session = await getServerSession()
-  const { category, area, sort = 'urgency' } = searchParams
+  const { category, area, sort = 'urgency', q } = searchParams
 
   const orderBy = (() => {
     if (sort === 'newest') return [{ createdAt: 'desc' as const }]
@@ -33,6 +33,12 @@ export default async function JobsPage({ searchParams }: PageProps) {
         status: JobStatus.OPEN,
         ...(category ? { category: { slug: category } } : {}),
         ...(area ? { area: { contains: area, mode: 'insensitive' } } : {}),
+        ...(q ? {
+          OR: [
+            { title: { contains: q, mode: 'insensitive' } },
+            { description: { contains: q, mode: 'insensitive' } },
+          ],
+        } : {}),
       },
       include: {
         category: true,

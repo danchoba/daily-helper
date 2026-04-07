@@ -6,6 +6,7 @@ import { getServerSession } from '@/lib/session'
 import { JobStatusBadge } from '@/components/ui/Badge'
 import { formatBWP, formatDate, formatRelativeTime } from '@/lib/utils'
 import { CloseJobButton, CompleteJobButton } from './actions'
+import { RaiseDisputeButton } from '@/components/disputes/RaiseDisputeButton'
 
 export default async function CustomerJobDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession()
@@ -95,6 +96,7 @@ export default async function CustomerJobDetailPage({ params }: { params: { id: 
             )}
             {(job.status === 'OPEN' || job.status === 'IN_PROGRESS') && <CloseJobButton jobId={job.id} />}
             {job.status === 'IN_PROGRESS' && <CompleteJobButton jobId={job.id} />}
+            {job.status === 'IN_PROGRESS' && <RaiseDisputeButton jobId={job.id} />}
           </div>
         </div>
       </div>

@@ -43,6 +43,12 @@ enum UrgencyLevel {
   URGENT
 }
 
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+  CLOSED
+}
+
 model User {
   id                  String   @id @default(cuid())
   role                UserRole @default(CUSTOMER)
@@ -60,7 +66,11 @@ model User {
   reviewsReceived Review[]         @relation("ReviewsReceived")
   jobsPosted      Job[]
   applications    JobApplication[]
-  verificationRequests VerificationRequest[]
+  verificationRequests  VerificationRequest[]
+  disputesRaised        Dispute[]      @relation("DisputesRaised")
+  disputesResolved      Dispute[]      @relation("DisputesResolved")
+  conversationsAsWorker Conversation[] @relation("WorkerConversations")
+  sentMessages          Message[]      @relation("SentMessages")
 }
 
 model WorkerProfile {
@@ -117,8 +127,10 @@ model Job {
 
   customer     User             @relation(fields: [customerId], references: [id])
   category     Category         @relation(fields: [categoryId], references: [id])
-  applications JobApplication[]
-  review       Review?
+  applications  JobApplication[]
+  review        Review?
+  dispute       Dispute?
+  conversations Conversation[]
 }
 
 model JobApplication {
@@ -160,4 +172,47 @@ model Review {
   job      Job  @relation(fields: [jobId], references: [id])
   customer User @relation("ReviewsGiven", fields: [customerId], references: [id])
   worker   User @relation("ReviewsReceived", fields: [workerId], references: [id])
+}
+
+model Dispute {
+  id           String        @id @default(cuid())
+  jobId        String        @unique
+  raisedById   String
+  reason       String
+  status       DisputeStatus @default(OPEN)
+  resolution   String?
+  resolvedById String?
+  resolvedAt   DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  job        Job   @relation(fields: [jobId], references: [id])
+  raisedBy   User  @relation("DisputesRaised", fields: [raisedById], references: [id])
+  resolvedBy User? @relation("DisputesResolved", fields: [resolvedById], references: [id])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  jobId     String
+  workerId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  job      Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  worker   User      @relation("WorkerConversations", fields: [workerId], references: [id])
+  messages Message[]
+
+  @@unique([jobId, workerId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation("SentMessages", fields: [senderId], references: [id])
 }

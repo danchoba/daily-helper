@@ -2,7 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(node -e \"require\\(''''framer-motion''''\\)\")"
+      "Bash(node -e \"require\\(''''framer-motion''''\\)\")",
+      "Bash(find /c/Users/daniel-chobak/Downloads/daily-helper/daily-helper/app/dashboard/worker* -type f -name \"*.tsx\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\api\\\\jobs\\\\[id]\\\\dispute\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\api\\\\admin\\\\disputes\\\\[id]\")",
+      "Bash(ls /c/Users/daniel-chobak/Downloads/daily-helper/daily-helper/app/dashboard/customer/jobs/[id])",
+      "Bash(npx prisma:*)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\api\\\\messages\\\\conversations\\\\[conversationId]\")",
+      "Bash(touch \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\api\\\\messages\\\\conversations\\\\[conversationId]\\\\route.ts\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\dashboard\\\\customer\\\\messages\\\\[conversationId]\")",
+      "Bash(mkdir -p \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\dashboard\\\\worker\\\\messages\\\\[conversationId]\")",
+      "Bash(touch \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\dashboard\\\\customer\\\\messages\\\\[conversationId]\\\\page.tsx\")",
+      "Bash(touch \"c:\\\\Users\\\\daniel-chobak\\\\Downloads\\\\daily-helper\\\\daily-helper\\\\app\\\\dashboard\\\\worker\\\\messages\\\\[conversationId]\\\\page.tsx\")"
     ]
   }
 }

@@ -3,14 +3,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
+  AlertTriangle,
   BriefcaseBusiness,
   ClipboardList,
+  MessageSquare,
   ShieldCheck,
   Star,
   UserRound,
   Users,
   type LucideIcon,
 } from 'lucide-react'
+import { UnreadBadge } from '@/components/messages/UnreadBadge'
 import { Navbar } from '@/components/layout/Navbar'
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal'
 import { cn } from '@/lib/utils'
@@ -27,12 +30,14 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
   CUSTOMER: [
     { label: 'Overview', href: '/dashboard/customer', icon: ClipboardList },
     { label: 'My Jobs', href: '/dashboard/customer/jobs', icon: BriefcaseBusiness },
+    { label: 'Messages', href: '/dashboard/customer/messages', icon: MessageSquare },
     { label: 'Reviews', href: '/dashboard/customer/reviews', icon: Star },
   ],
   WORKER: [
     { label: 'Overview', href: '/dashboard/worker', icon: ClipboardList },
     { label: 'Jobs', href: '/dashboard/worker/jobs', icon: BriefcaseBusiness },
     { label: 'Applications', href: '/dashboard/worker/applications', icon: Users },
+    { label: 'Messages', href: '/dashboard/worker/messages', icon: MessageSquare },
     { label: 'Profile', href: '/dashboard/worker/profile', icon: UserRound },
     { label: 'Verification', href: '/dashboard/worker/verification', icon: ShieldCheck },
   ],
@@ -41,6 +46,7 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
     { label: 'Jobs', href: '/dashboard/admin/jobs', icon: BriefcaseBusiness },
     { label: 'Users', href: '/dashboard/admin/users', icon: Users },
     { label: 'Verifications', href: '/dashboard/admin/verifications', icon: ShieldCheck },
+    { label: 'Disputes', href: '/dashboard/admin/disputes', icon: AlertTriangle },
   ],
 }
 
@@ -87,6 +93,7 @@ function NavItem({
           )}
         />
         <span className="flex-1">{item.label}</span>
+        {item.label === 'Messages' && <UnreadBadge />}
         {active && (
           <motion.div
             layoutId="sidebar-active-dot"

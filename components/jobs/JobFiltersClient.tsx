@@ -14,6 +14,7 @@ interface Category {
 interface JobFiltersClientProps {
   categories: Category[]
   totalJobs: number
+  basePath?: string
 }
 
 const SORT_OPTIONS = [
@@ -23,15 +24,17 @@ const SORT_OPTIONS = [
   { value: 'budget_low', label: 'Budget: Low → High' },
 ]
 
-export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProps) {
+export function JobFiltersClient({ categories, totalJobs, basePath = '/jobs' }: JobFiltersClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentCategory = searchParams.get('category') || ''
   const currentArea = searchParams.get('area') || ''
   const currentSort = searchParams.get('sort') || 'urgency'
+  const currentQ = searchParams.get('q') || ''
 
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false)
   const [areaInput, setAreaInput] = useState(currentArea)
+  const [qInput, setQInput] = useState(currentQ)
 
   const applyParams = useCallback(
     (updates: Record<string, string>) => {
@@ -40,20 +43,22 @@ export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProp
         if (v) params.set(k, v)
         else params.delete(k)
       }
-      router.push(`/jobs?${params.toString()}`)
+      router.push(`${basePath}?${params.toString()}`)
     },
-    [router, searchParams],
+    [router, searchParams, basePath],
   )
 
   const setCategory = (slug: string) => applyParams({ category: slug })
   const setSort = (sort: string) => applyParams({ sort })
   const applyArea = () => applyParams({ area: areaInput })
+  const applyQ = () => applyParams({ q: qInput })
   const clearAll = () => {
     setAreaInput('')
-    router.push('/jobs')
+    setQInput('')
+    router.push(basePath)
   }
 
-  const hasActiveFilters = currentCategory || currentArea
+  const hasActiveFilters = currentCategory || currentArea || currentQ
 
   return (
     <>
@@ -131,8 +136,20 @@ export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProp
           ))}
         </div>
 
-        {/* Area search — hidden on mobile (use bottom sheet instead) */}
-        <div className="hidden gap-3 md:grid md:grid-cols-[1fr,auto]">
+        {/* Keyword + area search — hidden on mobile (use bottom sheet instead) */}
+        <div className="hidden gap-3 md:grid md:grid-cols-[1fr,1fr,auto]">
+          <label className="relative block">
+            <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" aria-hidden="true" />
+            <input
+              type="text"
+              value={qInput}
+              onChange={e => setQInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && applyQ()}
+              placeholder="Search jobs by keyword…"
+              className="input pl-10"
+              aria-label="Search by keyword"
+            />
+          </label>
           <label className="relative block">
             <MapPin size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" aria-hidden="true" />
             <input
@@ -140,12 +157,12 @@ export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProp
               value={areaInput}
               onChange={e => setAreaInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && applyArea()}
-              placeholder="Filter by area (e.g. Gaborone, Phase 2)"
+              placeholder="Filter by area (e.g. Gaborone)"
               className="input pl-10"
               aria-label="Filter by area"
             />
           </label>
-          <button type="button" onClick={applyArea} className="btn-outline">
+          <button type="button" onClick={() => applyParams({ q: qInput, area: areaInput })} className="btn-outline">
             <Search size={16} aria-hidden="true" />
             Apply
           </button>
@@ -159,7 +176,7 @@ export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProp
           aria-controls="filter-sheet"
         >
           <Filter size={15} aria-hidden="true" />
-          {currentArea ? `Area: ${currentArea}` : 'Filter by area'}
+          {currentQ ? `"${currentQ}"` : currentArea ? `Area: ${currentArea}` : 'Search & filter'}
         </button>
       </div>
 
@@ -182,7 +199,7 @@ export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProp
             {/* Drag handle */}
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-earth-200" aria-hidden="true" />
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-bold text-earth-950">Filter by area</h2>
+              <h2 className="text-base font-bold text-earth-950">Search & filter</h2>
               <button
                 onClick={() => setBottomSheetOpen(false)}
                 aria-label="Close filter panel"
@@ -191,6 +208,17 @@ export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProp
                 <X size={18} />
               </button>
             </div>
+            <label className="relative mb-3 block">
+              <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" aria-hidden="true" />
+              <input
+                type="text"
+                value={qInput}
+                onChange={e => setQInput(e.target.value)}
+                placeholder="Search by keyword…"
+                className="input pl-10"
+                aria-label="Keyword search"
+              />
+            </label>
             <label className="relative mb-3 block">
               <MapPin size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" aria-hidden="true" />
               <input
@@ -206,15 +234,15 @@ export function JobFiltersClient({ categories, totalJobs }: JobFiltersClientProp
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => { applyArea(); setBottomSheetOpen(false) }}
+                onClick={() => { applyParams({ q: qInput, area: areaInput }); setBottomSheetOpen(false) }}
                 className="btn-primary flex-1"
               >
-                Apply filter
+                Apply filters
               </button>
-              {currentArea && (
+              {(currentArea || currentQ) && (
                 <button
                   type="button"
-                  onClick={() => { setAreaInput(''); applyParams({ area: '' }); setBottomSheetOpen(false) }}
+                  onClick={() => { setAreaInput(''); setQInput(''); applyParams({ area: '', q: '' }); setBottomSheetOpen(false) }}
                   className="btn-outline"
                 >
                   Clear

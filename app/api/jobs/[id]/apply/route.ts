@@ -3,6 +3,32 @@ import { prisma } from '@/lib/prisma'
 import { requireRole } from '@/lib/auth'
 import { ApplicationStatus } from '@prisma/client'
 
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const session = await requireRole(req, 'WORKER')
+
+    const application = await prisma.jobApplication.findUnique({
+      where: { jobId_workerId: { jobId: params.id, workerId: session.id } },
+    })
+
+    if (!application) return NextResponse.json({ error: 'Application not found' }, { status: 404 })
+    if (application.status !== 'PENDING') {
+      return NextResponse.json({ error: 'Only pending applications can be withdrawn' }, { status: 400 })
+    }
+
+    await prisma.jobApplication.update({
+      where: { jobId_workerId: { jobId: params.id, workerId: session.id } },
+      data: { status: ApplicationStatus.WITHDRAWN },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (err: any) {
+    if (err.message === 'Unauthorized') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (err.message === 'Forbidden') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await requireRole(req, 'WORKER')
