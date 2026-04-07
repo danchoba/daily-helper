@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",
+    "@supabase/ssr": "^0.10.0",
+    "@supabase/supabase-js": "^2.102.1",
     "@vercel/blob": "^2.3.3",
     "bcryptjs": "^2.4.3",
     "framer-motion": "^12.38.0",

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowRight, BriefcaseBusiness, Loader2, UserCheck, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, BriefcaseBusiness, Loader2, UserCheck, CheckCircle2, AlertCircle } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
 import { cn } from '@/lib/utils'
 
@@ -18,6 +18,7 @@ function SignupForm() {
   const toast = useToast()
   const searchParams = useSearchParams()
   const defaultRole = searchParams.get('role') === 'worker' ? 'WORKER' : 'CUSTOMER'
+  const oauthError = searchParams.get('error') === 'no_account'
 
   const [form, setForm] = useState({ name: '', email: '', password: '', phoneNumber: '', role: defaultRole })
   const [loading, setLoading] = useState(false)
@@ -254,7 +255,37 @@ function SignupForm() {
                   </motion.div>
                 </form>
 
-                <motion.p {...fadeUp(0.34)} className="mt-6 text-center text-sm text-earth-500">
+                {oauthError && (
+                  <motion.div {...fadeUp(0.32)} className="mt-4 flex items-center gap-2 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                    <AlertCircle size={14} className="shrink-0" />
+                    No account found for that Google address. Pick a role and sign up below.
+                  </motion.div>
+                )}
+
+                <motion.div {...fadeUp(0.34)}>
+                  <div className="relative my-5 flex items-center">
+                    <div className="flex-1 border-t border-white/8" />
+                    <span className="mx-3 text-[11px] font-semibold uppercase tracking-widest text-earth-600">or</span>
+                    <div className="flex-1 border-t border-white/8" />
+                  </div>
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => { window.location.href = `/api/auth/google?role=${form.role}` }}
+                    className="flex w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 py-3.5 text-sm font-bold text-white transition-all hover:border-white/20 hover:bg-white/8"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true">
+                      <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" />
+                      <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" />
+                      <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" />
+                      <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" />
+                    </svg>
+                    Continue with Google
+                  </motion.button>
+                </motion.div>
+
+                <motion.p {...fadeUp(0.38)} className="mt-6 text-center text-sm text-earth-500">
                   Already have an account?{' '}
                   <Link href="/login" className="font-bold text-brand-400 transition-colors hover:text-brand-300">
                     Sign in
@@ -263,7 +294,7 @@ function SignupForm() {
               </div>
             </div>
 
-            <motion.p {...fadeUp(0.38)} className="mt-5 text-center text-[12px] text-earth-600">
+            <motion.p {...fadeUp(0.42)} className="mt-5 text-center text-[12px] text-earth-600">
               <Link href="/" className="transition-colors hover:text-earth-400">← Back to Daily Helper</Link>
             </motion.p>
           </motion.div>
