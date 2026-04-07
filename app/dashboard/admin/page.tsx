@@ -73,21 +73,22 @@ export default async function AdminDashboard() {
 
       {/* Priority queue */}
       <div>
-        <p className="mb-3 text-xs font-bold uppercase tracking-widest text-earth-400">Priority queue</p>
+        <div className="mb-3 flex items-center gap-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-earth-400">Priority queue</p>
+          {pendingVerifications > 0 && (
+            <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-700">
+              {pendingVerifications} pending
+            </span>
+          )}
+        </div>
         <Link
           href="/dashboard/admin/verifications"
-          className="group relative overflow-hidden rounded-2xl border border-earth-200/80 bg-white p-6 shadow-card transition-all hover:border-brand-200 hover:shadow-card-hover"
+          className="group relative block overflow-hidden rounded-2xl border border-earth-200/80 bg-white p-6 shadow-card transition-all hover:border-brand-200 hover:shadow-card-hover"
         >
           <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brand-500 to-accent-400 opacity-0 transition-opacity group-hover:opacity-100" />
           <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 text-white shadow-sm">
             <ShieldCheck size={18} />
           </div>
-          {pendingVerifications > 0 && (
-            <span className="absolute right-4 top-4 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-700">
-              {pendingVerifications} pending
-            </span>
-          )}
-          <p className="mb-1 text-xs font-bold uppercase tracking-widest text-earth-400">Priority queue</p>
           <h2 className="text-lg font-bold tracking-tight text-earth-950">Verification reviews</h2>
           <p className="mt-2 text-sm leading-relaxed text-earth-500">
             Approve or reject worker verification requests to grant the Trusted badge.
