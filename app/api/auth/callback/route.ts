@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error || !data.user?.email) {
+    console.error('[auth/callback] exchangeCodeForSession error:', error?.message, error?.status)
     return NextResponse.redirect(`${appUrl}/login?error=oauth`)
   }
 
