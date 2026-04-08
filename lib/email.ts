@@ -1,7 +1,5 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 const FROM = 'Daily Helper <noreply@dailyhelper.bw>'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
@@ -14,6 +12,7 @@ export async function sendNewApplicationEmail(params: {
   workerName: string
 }) {
   if (!process.env.RESEND_API_KEY) return
+  const resend = new Resend(process.env.RESEND_API_KEY)
 
   await resend.emails.send({
     from: FROM,
@@ -38,6 +37,7 @@ export async function sendVerificationApprovedEmail(params: {
   workerName: string
 }) {
   if (!process.env.RESEND_API_KEY) return
+  const resend = new Resend(process.env.RESEND_API_KEY)
 
   await resend.emails.send({
     from: FROM,
@@ -63,6 +63,7 @@ export async function sendVerificationRejectedEmail(params: {
   workerName: string
 }) {
   if (!process.env.RESEND_API_KEY) return
+  const resend = new Resend(process.env.RESEND_API_KEY)
 
   await resend.emails.send({
     from: FROM,
@@ -91,6 +92,7 @@ export async function sendApplicationSelectedEmail(params: {
   customerName: string
 }) {
   if (!process.env.RESEND_API_KEY) return
+  const resend = new Resend(process.env.RESEND_API_KEY)
 
   await resend.emails.send({
     from: FROM,
