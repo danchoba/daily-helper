@@ -17,7 +17,7 @@ export default async function WorkerMessagesPage() {
     },
   })
 
-  const customerIds = [...new Set(conversations.map(c => c.job.customerId))]
+  const customerIds = Array.from(new Set(conversations.map(c => c.job.customerId)))
   const customers = customerIds.length > 0
     ? await prisma.user.findMany({ where: { id: { in: customerIds } }, select: { id: true, name: true } })
     : []
