@@ -83,6 +83,42 @@ export async function sendVerificationRejectedEmail(params: {
   })
 }
 
+/** Notify a worker that a new job matching their services has been posted */
+export async function sendJobAlertEmail(params: {
+  workerEmail: string
+  workerName: string
+  jobTitle: string
+  jobId: string
+  jobArea: string
+  categoryName: string
+  customerName: string
+}) {
+  if (!process.env.RESEND_API_KEY) return
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  await resend.emails.send({
+    from: FROM,
+    to: params.workerEmail,
+    subject: `New ${params.categoryName} job in ${params.jobArea}`,
+    html: `
+      <p>Hi ${params.workerName},</p>
+      <p>A new job matching your services has just been posted on Daily Helper.</p>
+      <table style="border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:16px 0;width:100%">
+        <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Job</td><td style="padding:6px 0;font-weight:600;">${params.jobTitle}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Category</td><td style="padding:6px 0;">${params.categoryName}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Location</td><td style="padding:6px 0;">${params.jobArea}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b;font-size:13px;">Posted by</td><td style="padding:6px 0;">${params.customerName}</td></tr>
+      </table>
+      <p>
+        <a href="${APP_URL}/jobs/${params.jobId}" style="background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-block;">
+          View and apply
+        </a>
+      </p>
+      <p style="color:#64748b;font-size:13px;">Daily Helper · Connecting Botswana</p>
+    `,
+  })
+}
+
 /** Notify a worker that they have been selected for a job */
 export async function sendApplicationSelectedEmail(params: {
   workerEmail: string

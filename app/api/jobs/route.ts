@@ -4,6 +4,8 @@ import { requireRole } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { jobInputSchema } from '@/lib/validators'
 import { z } from 'zod'
+import { sendJobAlertEmail } from '@/lib/email'
+import { createNotification } from '@/lib/notifications'
 
 function parseBudget(value: string | number | null | undefined) {
   if (value === null || value === undefined || value === '') return null
@@ -60,7 +62,50 @@ export async function POST(req: NextRequest) {
         status: JobStatus.OPEN,
         expiresAt,
       },
+      include: { category: true },
     })
+
+    // Fire-and-forget: notify matching workers
+    ;(async () => {
+      try {
+        const matchingWorkers = await prisma.user.findMany({
+          where: {
+            role: 'WORKER',
+            workerProfile: {
+              isAvailable: true,
+              servicesOffered: { has: job.category.name },
+            },
+          },
+          select: { id: true, email: true, name: true },
+          take: 50,
+        })
+
+        await Promise.allSettled(
+          matchingWorkers.map(worker =>
+            Promise.allSettled([
+              sendJobAlertEmail({
+                workerEmail: worker.email,
+                workerName: worker.name,
+                jobTitle: job.title,
+                jobId: job.id,
+                jobArea: job.area,
+                categoryName: job.category.name,
+                customerName: session.name,
+              }),
+              createNotification({
+                userId: worker.id,
+                type: 'job_alert',
+                title: `New ${job.category.name} job`,
+                body: `"${job.title}" in ${job.area} — apply now`,
+                link: `/jobs/${job.id}`,
+              }),
+            ])
+          )
+        )
+      } catch {
+        // never block the response
+      }
+    })()
 
     return NextResponse.json(job, { status: 201 })
   } catch (error: unknown) {

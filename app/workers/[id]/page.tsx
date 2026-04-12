@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MapPin, ShieldCheck, Star } from 'lucide-react'
+import { MapPin, MessageSquareShare, ShieldCheck, Star } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from '@/lib/session'
 import { Navbar } from '@/components/layout/Navbar'
@@ -8,10 +8,13 @@ import { Footer } from '@/components/layout/Footer'
 import { Badge } from '@/components/ui/Badge'
 import { formatDate } from '@/lib/utils'
 
-export default async function WorkerProfilePage({ params }: { params: { id: string } }) {
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
+export default async function WorkerProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession()
+  const { id } = await params
   const user = await prisma.user.findUnique({
-    where: { id: params.id, role: 'WORKER' },
+    where: { id, role: 'WORKER' },
     include: {
       workerProfile: true,
       reviewsReceived: {
@@ -25,14 +28,30 @@ export default async function WorkerProfilePage({ params }: { params: { id: stri
   if (!user || !user.workerProfile) notFound()
 
   const profile = user.workerProfile
+  const shareText = encodeURIComponent(
+    `Check out ${user.name} on Daily Helper — a local worker available for hire.\n${APP_URL}/workers/${id}`
+  )
+  const whatsappUrl = `https://wa.me/?text=${shareText}`
 
   return (
     <div className="min-h-screen">
       <Navbar user={session} />
       <div className="page-shell max-w-4xl">
-        <Link href="/jobs" className="subtle-link inline-flex items-center gap-2">
-          Back to jobs
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link href="/jobs" className="subtle-link inline-flex items-center gap-2">
+            Back to jobs
+          </Link>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline"
+            aria-label="Share this worker's profile on WhatsApp"
+          >
+            <MessageSquareShare size={15} aria-hidden="true" />
+            Share profile
+          </a>
+        </div>
 
         <div className="card mt-4">
           <div className="flex flex-col gap-5 border-b border-earth-200 pb-5 md:flex-row">
