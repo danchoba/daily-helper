@@ -31,8 +31,7 @@ function detectPlatform(): 'ios' | 'android' | 'other' {
 export function InstallPrompt() {
   const [show, setShow] = useState(false)
   const [platform, setPlatform] = useState<'ios' | 'android' | 'other'>('other')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null)
 
   useEffect(() => {
     if (isAlreadyInstalled() || wasDismissedRecently()) return
@@ -64,8 +63,9 @@ export function InstallPrompt() {
 
   async function install() {
     if (!deferredPrompt) return
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
+    const prompt = deferredPrompt as Event & { prompt: () => void; userChoice: Promise<{ outcome: string }> }
+    prompt.prompt()
+    const { outcome } = await prompt.userChoice
     if (outcome === 'accepted') setShow(false)
     setDeferredPrompt(null)
   }
