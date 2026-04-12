@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs'
 import { formatBWP, formatDate, timeAgo, urgencyLabel, urgencyColor, jobStatusLabel, statusColor } from '@/lib/utils'
 import { ApplyButton } from './ApplyButton'
+import { ReportJobButton } from '@/components/jobs/ReportJobButton'
 
 export default async function JobDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession()
@@ -135,6 +136,9 @@ export default async function JobDetailPage({ params }: { params: { id: string }
               ) : (
                 <ApplyButton jobId={job.id} />
               )}
+            </div>
+            <div className="mt-4 border-t border-earth-100 pt-4">
+              <ReportJobButton jobId={job.id} />
             </div>
           </div>
         )}

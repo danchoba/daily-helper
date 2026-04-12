@@ -71,6 +71,9 @@ model User {
   disputesResolved      Dispute[]      @relation("DisputesResolved")
   conversationsAsWorker Conversation[] @relation("WorkerConversations")
   sentMessages          Message[]      @relation("SentMessages")
+  notifications         Notification[]
+  savedJobs             SavedJob[]
+  jobReports            JobReport[]
 }
 
 model WorkerProfile {
@@ -80,6 +83,7 @@ model WorkerProfile {
   area               String?
   servicesOffered    String[]
   profilePhotoUrl    String?
+  portfolioUrls      String[]
   trustedBadge       Boolean            @default(false)
   verificationStatus VerificationStatus @default(NONE)
   averageRating      Float              @default(0)
@@ -131,6 +135,8 @@ model Job {
   review        Review?
   dispute       Dispute?
   conversations Conversation[]
+  savedBy       SavedJob[]
+  reports       JobReport[]
 }
 
 model JobApplication {
@@ -215,4 +221,40 @@ model Message {
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User         @relation("SentMessages", fields: [senderId], references: [id])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SavedJob {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+}
+
+model JobReport {
+  id           String   @id @default(cuid())
+  jobId        String
+  reportedById String
+  reason       String
+  createdAt    DateTime @default(now())
+
+  job        Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  reportedBy User @relation(fields: [reportedById], references: [id])
 }

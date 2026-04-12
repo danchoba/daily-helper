@@ -30,9 +30,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Scope the path by worker ID so uploads are attributable
+    const folderRaw = formData.get('folder')
+    const folder = folderRaw === 'portfolio' ? 'portfolio' : 'verifications'
     const ext = file.name.split('.').pop() ?? 'bin'
-    const filename = `verifications/${session.id}/${Date.now()}.${ext}`
+    const filename = `${folder}/${session.id}/${Date.now()}.${ext}`
 
     const blob = await put(filename, file, {
       access: 'public',

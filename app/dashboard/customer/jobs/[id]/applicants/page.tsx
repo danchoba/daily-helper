@@ -57,6 +57,29 @@ export default async function ApplicantsPage({ params }: { params: { id: string 
           </div>
         )}
 
+        {job.status === 'COMPLETED' && selectedApp && (
+          <div className="mb-6 rounded-2xl border border-sage-200 bg-sage-50 p-5">
+            <h2 className="text-lg font-bold tracking-tight text-sage-900">Job completed</h2>
+            <p className="mt-1 text-sm leading-6 text-sage-700">
+              This job was completed by <strong>{selectedApp.worker.name}</strong>.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link
+                href={`/dashboard/customer/jobs/new?from=${job.id}`}
+                className="btn-primary"
+              >
+                Post a similar job
+              </Link>
+              <Link
+                href={`/workers/${selectedApp.workerId}`}
+                className="btn-outline"
+              >
+                View {selectedApp.worker.name.split(' ')[0]}'s profile
+              </Link>
+            </div>
+          </div>
+        )}
+
         {job.applications.length === 0 ? (
           <div className="surface-card p-10 text-center">
             <h2 className="text-lg font-bold tracking-tight text-earth-900">No applications yet</h2>

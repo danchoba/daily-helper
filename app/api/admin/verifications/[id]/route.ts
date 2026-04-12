@@ -5,6 +5,7 @@ import { requireRole } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { adminActionSchema } from '@/lib/validators'
 import { sendVerificationApprovedEmail, sendVerificationRejectedEmail } from '@/lib/email'
+import { createNotification } from '@/lib/notifications'
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -40,8 +41,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     const { email, name } = verificationRequest.worker
     if (data.action === 'approve') {
       await sendVerificationApprovedEmail({ workerEmail: email, workerName: name })
+      createNotification({
+        userId: verificationRequest.workerId,
+        type: 'verification_approved',
+        title: 'Verification approved',
+        body: 'You have been awarded the Trusted badge on Daily Helper.',
+        link: '/dashboard/worker',
+      })
     } else {
       await sendVerificationRejectedEmail({ workerEmail: email, workerName: name })
+      createNotification({
+        userId: verificationRequest.workerId,
+        type: 'verification_rejected',
+        title: 'Verification not approved',
+        body: 'Your verification request was rejected. You may resubmit with a clearer ID.',
+        link: '/dashboard/worker/verification',
+      })
     }
 
     return NextResponse.json({ success: true })

@@ -11,12 +11,18 @@ export default async function WorkerDashboard() {
   if (!session) redirect('/login')
   if (session.role !== 'WORKER') redirect('/dashboard/' + (session.role === 'ADMIN' ? 'admin' : 'customer'))
 
-  const [profile, pendingApps, acceptedApps, openJobs] = await Promise.all([
+  const [profile, pendingApps, acceptedApps, openJobs, completedApps] = await Promise.all([
     prisma.workerProfile.findUnique({ where: { userId: session.id } }),
     prisma.jobApplication.count({ where: { workerId: session.id, status: 'PENDING' } }),
     prisma.jobApplication.count({ where: { workerId: session.id, status: 'SELECTED' } }),
     prisma.job.count({ where: { status: 'OPEN' } }),
+    prisma.jobApplication.findMany({
+      where: { workerId: session.id, status: 'SELECTED', job: { status: 'COMPLETED' } },
+      include: { job: { select: { budget: true } } },
+    }),
   ])
+
+  const estimatedEarnings = completedApps.reduce((sum, app) => sum + (app.job.budget ?? 0), 0)
 
   const profileFields = [
     { label: 'Bio', done: !!profile?.bio },
@@ -167,6 +173,12 @@ export default async function WorkerDashboard() {
               <div className="rounded-xl border border-earth-100 bg-earth-50/60 p-3 text-center">
                 <div className="text-lg font-extrabold text-earth-950">{profile?.jobsCompleted || 0}</div>
                 <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-earth-400">Jobs done</div>
+              </div>
+              <div className="col-span-2 rounded-xl border border-earth-100 bg-earth-50/60 p-3 text-center">
+                <div className="text-lg font-extrabold text-earth-950">
+                  BWP {estimatedEarnings.toLocaleString('en-BW', { minimumFractionDigits: 0 })}
+                </div>
+                <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-earth-400">Est. earnings</div>
               </div>
             </div>
           </div>

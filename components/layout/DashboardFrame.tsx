@@ -4,8 +4,10 @@ import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   AlertTriangle,
+  Bookmark,
   BriefcaseBusiness,
   ClipboardList,
+  LayoutGrid,
   MessageSquare,
   ShieldCheck,
   Star,
@@ -14,6 +16,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { UnreadBadge } from '@/components/messages/UnreadBadge'
+import { NotificationBadge } from '@/components/notifications/NotificationBadge'
 import { Navbar } from '@/components/layout/Navbar'
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal'
 import { cn } from '@/lib/utils'
@@ -37,6 +40,7 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
     { label: 'Overview', href: '/dashboard/worker', icon: ClipboardList },
     { label: 'Jobs', href: '/dashboard/worker/jobs', icon: BriefcaseBusiness },
     { label: 'Applications', href: '/dashboard/worker/applications', icon: Users },
+    { label: 'Saved', href: '/dashboard/worker/saved', icon: Bookmark },
     { label: 'Messages', href: '/dashboard/worker/messages', icon: MessageSquare },
     { label: 'Profile', href: '/dashboard/worker/profile', icon: UserRound },
     { label: 'Verification', href: '/dashboard/worker/verification', icon: ShieldCheck },
@@ -45,6 +49,7 @@ const navConfig: Record<Role, { label: string; href: string; icon: LucideIcon }[
     { label: 'Overview', href: '/dashboard/admin', icon: ClipboardList },
     { label: 'Jobs', href: '/dashboard/admin/jobs', icon: BriefcaseBusiness },
     { label: 'Users', href: '/dashboard/admin/users', icon: Users },
+    { label: 'Categories', href: '/dashboard/admin/categories', icon: LayoutGrid },
     { label: 'Verifications', href: '/dashboard/admin/verifications', icon: ShieldCheck },
     { label: 'Disputes', href: '/dashboard/admin/disputes', icon: AlertTriangle },
   ],
@@ -151,11 +156,12 @@ export function DashboardFrame({ user, children, showOnboarding = false }: Dashb
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.25, duration: 0.35 }}
-                  className="min-w-0"
+                  className="min-w-0 flex-1"
                 >
                   <div className="truncate text-sm font-bold text-earth-900">{user.name}</div>
                   <div className="text-[11px] font-medium text-earth-500">{roleLabels[user.role]}</div>
                 </motion.div>
+                <NotificationBadge />
               </div>
             </div>
 

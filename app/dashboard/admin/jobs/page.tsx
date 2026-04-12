@@ -5,24 +5,40 @@ import { prisma } from '@/lib/prisma'
 import { formatBWP, timeAgo, jobStatusLabel, statusColor } from '@/lib/utils'
 import { AdminJobActions } from './AdminJobActions'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Pagination } from '@/components/ui/Pagination'
 
-export default async function AdminJobsPage() {
+const PAGE_SIZE = 20
+
+interface PageProps {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function AdminJobsPage({ searchParams }: PageProps) {
   const session = await getServerSession()
   if (!session || session.role !== 'ADMIN') redirect('/login')
 
-  const jobs = await prisma.job.findMany({
-    include: { category: true, customer: { select: { name: true } }, _count: { select: { applications: true } } },
-    orderBy: { createdAt: 'desc' },
-  })
+  const { page } = await searchParams
+  const currentPage = Math.max(1, parseInt(page || '1', 10))
+
+  const [total, jobs] = await Promise.all([
+    prisma.job.count(),
+    prisma.job.findMany({
+      include: { category: true, customer: { select: { name: true } }, _count: { select: { applications: true } } },
+      orderBy: { createdAt: 'desc' },
+      take: PAGE_SIZE,
+      skip: (currentPage - 1) * PAGE_SIZE,
+    }),
+  ])
 
   return (
     <div className="max-w-5xl">
       <Link href="/dashboard/admin" className="subtle-link inline-flex items-center gap-2">Back to admin</Link>
-      <h1 className="page-title mt-3 mb-6">Jobs ({jobs.length})</h1>
+      <h1 className="page-title mt-3 mb-6">Jobs ({total})</h1>
 
       {jobs.length === 0 ? (
         <EmptyState title="No jobs available" description="Jobs will appear here when customers create listings." />
       ) : (
+        <>
         <div className="space-y-4">
           {jobs.map(job => (
             <div key={job.id} className="card">
@@ -48,6 +64,14 @@ export default async function AdminJobsPage() {
             </div>
           ))}
         </div>
+        <Pagination
+          total={total}
+          pageSize={PAGE_SIZE}
+          currentPage={currentPage}
+          basePath="/dashboard/admin/jobs"
+          searchParams={{}}
+        />
+        </>
       )}
     </div>
   )

@@ -8,17 +8,18 @@ import { JobCard } from '@/components/jobs/JobCard'
 import { JobFiltersClient } from '@/components/jobs/JobFiltersClient'
 import { EmptyState } from '@/components/ui/EmptyState'
 
+import { Pagination } from '@/components/ui/Pagination'
+
 interface PageProps {
-  searchParams: { category?: string; area?: string; sort?: string; q?: string }
+  searchParams: Promise<{ category?: string; area?: string; sort?: string; q?: string; page?: string }>
 }
 
-type SortKey = 'urgency' | 'newest' | 'budget_high' | 'budget_low'
-
-const urgencyOrder: Record<string, number> = { URGENT: 0, HIGH: 1, MEDIUM: 2, LOW: 3 }
+const PAGE_SIZE = 12
 
 export default async function JobsPage({ searchParams }: PageProps) {
   const session = await getServerSession()
-  const { category, area, sort = 'urgency', q } = searchParams
+  const { category, area, sort = 'urgency', q, page } = await searchParams
+  const currentPage = Math.max(1, parseInt(page || '1', 10))
 
   const orderBy = (() => {
     if (sort === 'newest') return [{ createdAt: 'desc' as const }]
@@ -27,30 +28,35 @@ export default async function JobsPage({ searchParams }: PageProps) {
     return [{ urgency: 'desc' as const }, { createdAt: 'desc' as const }]
   })()
 
-  const [jobs, categories] = await Promise.all([
+  const where = {
+    status: JobStatus.OPEN,
+    ...(category ? { category: { slug: category } } : {}),
+    ...(area ? { area: { contains: area, mode: 'insensitive' as const } } : {}),
+    ...(q ? {
+      OR: [
+        { title: { contains: q, mode: 'insensitive' as const } },
+        { description: { contains: q, mode: 'insensitive' as const } },
+      ],
+    } : {}),
+  }
+
+  const [total, jobs, categories] = await Promise.all([
+    prisma.job.count({ where }),
     prisma.job.findMany({
-      where: {
-        status: JobStatus.OPEN,
-        ...(category ? { category: { slug: category } } : {}),
-        ...(area ? { area: { contains: area, mode: 'insensitive' } } : {}),
-        ...(q ? {
-          OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { description: { contains: q, mode: 'insensitive' } },
-          ],
-        } : {}),
-      },
+      where,
       include: {
         category: true,
         customer: { select: { name: true } },
         _count: { select: { applications: true } },
       },
       orderBy,
+      take: PAGE_SIZE,
+      skip: (currentPage - 1) * PAGE_SIZE,
     }),
     prisma.category.findMany({ orderBy: { name: 'asc' } }),
   ])
 
-  // Client-side budget sort doesn't affect null budgets well; re-sort in JS for correctness
+  // Re-sort budget in JS to correctly handle null budgets
   const sortedJobs = sort === 'budget_high'
     ? [...jobs].sort((a, b) => (b.budget ?? -1) - (a.budget ?? -1))
     : sort === 'budget_low'
@@ -101,9 +107,18 @@ export default async function JobsPage({ searchParams }: PageProps) {
             }
           />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {sortedJobs.map(job => <JobCard key={job.id} job={job} />)}
-          </div>
+          <>
+            <div className="grid gap-4 md:grid-cols-2">
+              {sortedJobs.map(job => <JobCard key={job.id} job={job} />)}
+            </div>
+            <Pagination
+              total={total}
+              pageSize={PAGE_SIZE}
+              currentPage={currentPage}
+              basePath="/jobs"
+              searchParams={searchParams as Record<string, string>}
+            />
+          </>
         )}
       </div>
       <Footer />

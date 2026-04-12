@@ -39,6 +39,7 @@ export const workerProfileSchema = z.object({
   bio: z.string().trim().max(500).optional(),
   area: z.string().trim().max(120).optional(),
   profilePhotoUrl: z.string().url().optional().or(z.literal('')).or(z.null()),
+  portfolioUrls: z.array(z.string().url()).max(6).optional(),
   servicesOffered: z.array(z.string().trim().min(1).max(60)).max(12).optional(),
   isAvailable: z.boolean().optional(),
 })

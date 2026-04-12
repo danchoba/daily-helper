@@ -81,9 +81,20 @@ export function CustomerJobsList({ jobs }: CustomerJobsListProps) {
                 <Link href={`/dashboard/customer/jobs/${job.id}/applicants`} className="btn-outline flex-1 text-center">
                   Applicants ({job._count.applications})
                 </Link>
-                <Link href={`/dashboard/customer/jobs/${job.id}/edit`} className="btn-outline">
-                  Edit
-                </Link>
+                {(job.status === 'OPEN' || job.status === 'IN_PROGRESS') && (
+                  <Link href={`/dashboard/customer/jobs/${job.id}/edit`} className="btn-outline">
+                    Edit
+                  </Link>
+                )}
+                {(job.status === 'COMPLETED' || job.status === 'CANCELLED' || job.status === 'CLOSED') && (
+                  <Link
+                    href={`/dashboard/customer/jobs/new?from=${job.id}`}
+                    className="btn-outline"
+                    title="Post a similar job"
+                  >
+                    Repost
+                  </Link>
+                )}
               </div>
             </div>
           ))}

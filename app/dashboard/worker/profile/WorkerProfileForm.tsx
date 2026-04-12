@@ -1,10 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/Toast'
+import { ImagePlus, Loader2, X } from 'lucide-react'
 
 interface Props {
-  profile: { bio?: string | null; area?: string | null; servicesOffered: string[]; isAvailable?: boolean } | null
+  profile: { bio?: string | null; area?: string | null; servicesOffered: string[]; portfolioUrls?: string[]; isAvailable?: boolean } | null
   phoneNumber: string
   serviceOptions: string[]
 }
@@ -23,10 +24,13 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
     bio: profile?.bio || '',
     area: profile?.area || '',
     servicesOffered: profile?.servicesOffered || [],
+    portfolioUrls: profile?.portfolioUrls || [],
     isAvailable: profile?.isAvailable ?? true,
   })
   const [loading, setLoading] = useState(false)
   const [bioError, setBioError] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function toggleService(service: string) {
     setForm(current => ({
@@ -35,6 +39,34 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
         ? current.servicesOffered.filter(item => item !== service)
         : [...current.servicesOffered, service],
     }))
+  }
+
+  async function handlePortfolioUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (form.portfolioUrls.length >= 6) {
+      toast.error('Maximum 6 portfolio photos allowed.')
+      return
+    }
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'portfolio')
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error || 'Upload failed'); return }
+      setForm(f => ({ ...f, portfolioUrls: [...f.portfolioUrls, data.url] }))
+    } catch {
+      toast.error('Upload failed. Please try again.')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  function removePortfolioPhoto(url: string) {
+    setForm(f => ({ ...f, portfolioUrls: f.portfolioUrls.filter(u => u !== url) }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -139,6 +171,46 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
         {form.servicesOffered.length === 0 && (
           <p className="mt-2 text-xs text-earth-400">Select at least one service to improve your profile.</p>
         )}
+      </div>
+
+      {/* Portfolio photos */}
+      <div>
+        <label className="label">Portfolio photos <span className="font-normal text-earth-400">optional — max 6</span></label>
+        <p className="mb-3 text-xs text-earth-500">Show customers examples of your past work to build trust.</p>
+        <div className="flex flex-wrap gap-3">
+          {form.portfolioUrls.map(url => (
+            <div key={url} className="group relative h-24 w-24 overflow-hidden rounded-xl border border-earth-200">
+              <img src={url} alt="Portfolio" className="h-full w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => removePortfolioPhoto(url)}
+                aria-label="Remove photo"
+                className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-earth-900/70 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <X size={10} />
+              </button>
+            </div>
+          ))}
+          {form.portfolioUrls.length < 6 && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-earth-200 text-earth-400 transition-colors hover:border-brand-300 hover:text-brand-500 disabled:opacity-50"
+            >
+              {uploading ? <Loader2 size={18} className="animate-spin" /> : <ImagePlus size={18} />}
+              <span className="text-[10px] font-semibold">{uploading ? 'Uploading…' : 'Add photo'}</span>
+            </button>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={handlePortfolioUpload}
+          aria-label="Upload portfolio photo"
+        />
       </div>
 
       {/* Availability toggle */}

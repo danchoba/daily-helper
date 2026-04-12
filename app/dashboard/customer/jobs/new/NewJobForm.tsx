@@ -18,17 +18,26 @@ function charCountClass(current: number, max: number) {
   return 'text-earth-400'
 }
 
-export function NewJobForm({ categories }: { categories: Category[] }) {
+interface InitialData {
+  title?: string | null
+  description?: string | null
+  categoryId?: string | null
+  area?: string | null
+  budget?: number | null
+  urgency?: string | null
+}
+
+export function NewJobForm({ categories, initialData }: { categories: Category[]; initialData?: InitialData }) {
   const router = useRouter()
   const toast = useToast()
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    categoryId: '',
-    area: '',
-    budget: '',
+    title: initialData?.title ?? '',
+    description: initialData?.description ?? '',
+    categoryId: initialData?.categoryId ?? '',
+    area: initialData?.area ?? '',
+    budget: initialData?.budget != null ? String(initialData.budget) : '',
     preferredDate: '',
-    urgency: 'MEDIUM',
+    urgency: initialData?.urgency ?? 'MEDIUM',
   })
   const [loading, setLoading] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})

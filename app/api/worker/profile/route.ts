@@ -28,6 +28,7 @@ export async function PATCH(req: NextRequest) {
         ...(data.area !== undefined && { area: data.area }),
         ...(data.servicesOffered !== undefined && { servicesOffered: data.servicesOffered }),
         ...(data.profilePhotoUrl !== undefined && { profilePhotoUrl: data.profilePhotoUrl || null }),
+        ...(data.portfolioUrls !== undefined && { portfolioUrls: data.portfolioUrls }),
         ...(data.isAvailable !== undefined && { isAvailable: data.isAvailable }),
       },
       create: {
@@ -36,6 +37,7 @@ export async function PATCH(req: NextRequest) {
         area: data.area || null,
         servicesOffered: data.servicesOffered || [],
         profilePhotoUrl: data.profilePhotoUrl || null,
+        portfolioUrls: data.portfolioUrls || [],
         isAvailable: data.isAvailable ?? true,
       },
     })
