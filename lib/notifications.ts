@@ -6,6 +6,7 @@ export type NotificationType =
   | 'verification_approved'
   | 'verification_rejected'
   | 'new_message'
+  | 'job_alert'
 
 export async function createNotification(params: {
   userId: string

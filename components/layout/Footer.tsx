@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { BriefcaseBusiness, MapPin, Mail, ArrowUpRight } from 'lucide-react'
+import { DailyHelperIcon } from '@/components/ui/DailyHelperIcon'
 
 const links = {
   Platform: [
@@ -11,6 +12,10 @@ const links = {
     { href: '/login', label: 'Log In' },
     { href: '/signup', label: 'Sign Up' },
     { href: '/signup?role=worker', label: 'Worker Profile' },
+  ],
+  Legal: [
+    { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/terms', label: 'Terms of Service' },
   ],
 }
 
@@ -29,12 +34,14 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-sm font-black tracking-widest text-white">
-                DH
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-800" />
+                <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.5),transparent_60%)]" />
+                <DailyHelperIcon className="relative h-6 w-6 text-white" />
               </div>
               <div>
                 <div className="text-sm font-extrabold tracking-tight text-white">Daily Helper</div>
-                <div className="text-xs text-earth-500">Trusted local jobs platform</div>
+                <div className="text-xs text-earth-500">Get help. Get hired.</div>
               </div>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-earth-400">

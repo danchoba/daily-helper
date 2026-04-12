@@ -1,8 +1,34 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useCallback } from 'react'
-import { Filter, MapPin, Search, SlidersHorizontal, X } from 'lucide-react'
+import { Filter, Loader2, MapPin, Navigation, Search, SlidersHorizontal, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+async function detectCity(): Promise<string | null> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) { resolve(null); return }
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json&accept-language=en`,
+            { headers: { 'User-Agent': 'DailyHelper/1.0 (hello@dailyhelper.bw)' } }
+          )
+          const data = await res.json()
+          const city =
+            data.address?.city ||
+            data.address?.town ||
+            data.address?.suburb ||
+            data.address?.village ||
+            null
+          resolve(city)
+        } catch { resolve(null) }
+      },
+      () => resolve(null),
+      { timeout: 8000, maximumAge: 300_000 }
+    )
+  })
+}
 
 interface Category {
   id: string
@@ -35,6 +61,20 @@ export function JobFiltersClient({ categories, totalJobs, basePath = '/jobs' }: 
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false)
   const [areaInput, setAreaInput] = useState(currentArea)
   const [qInput, setQInput] = useState(currentQ)
+  const [locating, setLocating] = useState(false)
+
+  async function useMyLocation() {
+    setLocating(true)
+    try {
+      const city = await detectCity()
+      if (city) {
+        setAreaInput(city)
+        applyParams({ area: city })
+      }
+    } finally {
+      setLocating(false)
+    }
+  }
 
   const applyParams = useCallback(
     (updates: Record<string, string>) => {
@@ -137,7 +177,7 @@ export function JobFiltersClient({ categories, totalJobs, basePath = '/jobs' }: 
         </div>
 
         {/* Keyword + area search — hidden on mobile (use bottom sheet instead) */}
-        <div className="hidden gap-3 md:grid md:grid-cols-[1fr,1fr,auto]">
+        <div className="hidden gap-3 md:grid md:grid-cols-[1fr,1fr,auto,auto]">
           <label className="relative block">
             <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" aria-hidden="true" />
             <input
@@ -162,6 +202,19 @@ export function JobFiltersClient({ categories, totalJobs, basePath = '/jobs' }: 
               aria-label="Filter by area"
             />
           </label>
+          <button
+            type="button"
+            onClick={useMyLocation}
+            disabled={locating}
+            title="Use my location"
+            aria-label="Detect my location"
+            className="btn-outline shrink-0 px-3"
+          >
+            {locating
+              ? <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+              : <Navigation size={16} aria-hidden="true" />
+            }
+          </button>
           <button type="button" onClick={() => applyParams({ q: qInput, area: areaInput })} className="btn-outline">
             <Search size={16} aria-hidden="true" />
             Apply
@@ -219,18 +272,35 @@ export function JobFiltersClient({ categories, totalJobs, basePath = '/jobs' }: 
                 aria-label="Keyword search"
               />
             </label>
-            <label className="relative mb-3 block">
-              <MapPin size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" aria-hidden="true" />
-              <input
-                type="text"
-                value={areaInput}
-                onChange={e => setAreaInput(e.target.value)}
-                placeholder="e.g. Gaborone, Francistown"
-                className="input pl-10"
-                aria-label="Area"
-                autoFocus
-              />
-            </label>
+            <div className="mb-3 flex gap-2">
+              <label className="relative block flex-1">
+                <MapPin size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-earth-400" aria-hidden="true" />
+                <input
+                  type="text"
+                  value={areaInput}
+                  onChange={e => setAreaInput(e.target.value)}
+                  placeholder="e.g. Gaborone, Francistown"
+                  className="input pl-10"
+                  aria-label="Area"
+                />
+              </label>
+              <button
+                type="button"
+                onClick={async () => {
+                  const city = await (async () => { setLocating(true); try { return await detectCity() } finally { setLocating(false) } })()
+                  if (city) setAreaInput(city)
+                }}
+                disabled={locating}
+                title="Use my location"
+                aria-label="Detect my location"
+                className="btn-outline shrink-0 px-3"
+              >
+                {locating
+                  ? <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                  : <Navigation size={16} aria-hidden="true" />
+                }
+              </button>
+            </div>
             <div className="flex gap-3">
               <button
                 type="button"

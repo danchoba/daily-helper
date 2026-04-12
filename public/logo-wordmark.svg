@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 96" fill="none">
+  <defs>
+    <linearGradient id="icon-grad" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="icon-shine" x1="0" y1="0" x2="0" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon mark -->
+  <rect width="96" height="96" rx="22" fill="url(#icon-grad)"/>
+  <rect width="96" height="96" rx="22" fill="url(#icon-shine)"/>
+
+  <!-- Head -->
+  <circle cx="41" cy="20" r="13.5" fill="white"/>
+  <!-- Neck -->
+  <line x1="41" y1="33.5" x2="41" y2="45" stroke="white" stroke-width="10" stroke-linecap="round"/>
+  <!-- Body / checkmark -->
+  <path d="M15 59 L41 83 L84 38" stroke="white" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wordmark text (geometric, modern) -->
+  <!-- "Daily Helper" -->
+  <text
+    x="116"
+    y="56"
+    font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+    font-weight="800"
+    font-size="38"
+    letter-spacing="-1"
+    fill="#1c1a14"
+  >Daily Helper</text>
+
+  <!-- Slogan -->
+  <text
+    x="117"
+    y="76"
+    font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif"
+    font-weight="600"
+    font-size="14"
+    letter-spacing="0.5"
+    fill="#7a7365"
+  >Get help. Get hired.</text>
+</svg>

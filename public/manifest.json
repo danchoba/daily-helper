@@ -1,13 +1,66 @@
 {
+  "id": "/",
   "name": "Daily Helper",
-  "short_name": "DailyHelper",
-  "description": "Trusted local help in Botswana",
+  "short_name": "Daily Helper",
+  "description": "Find trusted local help or get hired for everyday jobs across Botswana.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#faf9f7",
-  "theme_color": "#ef9610",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait-primary",
+  "background_color": "#faf9f6",
+  "theme_color": "#f59e0b",
+  "categories": ["productivity", "lifestyle", "utilities"],
+  "lang": "en",
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Jobs",
+      "short_name": "Jobs",
+      "description": "Browse open local jobs near you",
+      "url": "/jobs",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Post a Job",
+      "short_name": "Post Job",
+      "description": "Post a new job listing",
+      "url": "/dashboard/customer/jobs/new",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/logo.svg",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "Daily Helper job marketplace"
+    }
   ]
 }

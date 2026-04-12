@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowRight, Eye, EyeOff, Loader2, BadgeCheck, Star, Users, AlertCircle } from 'lucide-react'
 import { useToast } from '@/components/ui/Toast'
+import { DailyHelperIcon } from '@/components/ui/DailyHelperIcon'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
@@ -70,12 +71,12 @@ function LoginForm() {
           <Link href="/" className="mb-14 flex items-center gap-2.5">
             <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
               <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-800" />
-              <div className="absolute inset-0 opacity-30 [background:radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.4),transparent_60%)]" />
-              <span className="relative text-[11px] font-black tracking-widest text-white">DH</span>
+              <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.5),transparent_60%)]" />
+              <DailyHelperIcon className="relative h-[24px] w-[24px] text-white" />
             </div>
             <div className="leading-tight">
               <div className="text-[15px] font-extrabold tracking-tight text-white">Daily Helper</div>
-              <div className="text-[10px] font-semibold text-earth-500 tracking-wide">Trusted local jobs</div>
+              <div className="text-[10px] font-semibold text-earth-500 tracking-wide">Get help. Get hired.</div>
             </div>
           </Link>
 
@@ -125,7 +126,8 @@ function LoginForm() {
               <Link href="/" className="flex items-center gap-2.5">
                 <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg">
                   <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-800" />
-                  <span className="relative text-[10px] font-black tracking-widest text-white">DH</span>
+                  <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.5),transparent_60%)]" />
+                  <DailyHelperIcon className="relative h-[20px] w-[20px] text-white" />
                 </div>
                 <span className="text-[14px] font-bold text-white">Daily Helper</span>
               </Link>

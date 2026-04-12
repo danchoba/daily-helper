@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LayoutDashboard, MapPin, Menu, X, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { DailyHelperIcon } from '@/components/ui/DailyHelperIcon'
 
 interface NavbarProps {
   user?: { name?: string; role: string } | null
@@ -67,12 +68,12 @@ export function Navbar({ user }: NavbarProps) {
               className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-800" />
-              <div className="absolute inset-0 opacity-30 [background:radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.4),transparent_60%)]" />
-              <span className="relative text-[11px] font-black tracking-widest text-white">DH</span>
+              <div className="absolute inset-0 opacity-20 [background:radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.5),transparent_60%)]" />
+              <DailyHelperIcon className="relative h-[22px] w-[22px] text-white" />
             </motion.div>
             <div className="leading-tight">
               <div className="text-[15px] font-extrabold tracking-tight text-earth-900">Daily Helper</div>
-              <div className="text-[9.5px] font-semibold text-earth-400 tracking-wide">Trusted local jobs</div>
+              <div className="text-[9.5px] font-semibold text-earth-400 tracking-wide">Get help. Get hired.</div>
             </div>
           </Link>
 

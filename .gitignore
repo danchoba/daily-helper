@@ -2,4 +2,11 @@
 .env.local
 .next
 node_modules
-node_modules
+
+# PWA generated files
+/public/sw.js
+/public/sw.js.map
+/public/workbox-*.js
+/public/workbox-*.js.map
+/public/worker-*.js
+/public/fallback-*.js

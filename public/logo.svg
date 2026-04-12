@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <!-- Amber brand gradient: brand-500 → brand-800 -->
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <!-- Soft top-left highlight for depth -->
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square (iOS-style radius ~22% of size) -->
+  <rect width="512" height="512" rx="112" fill="url(#bg-grad)"/>
+  <rect width="512" height="512" rx="112" fill="url(#shine)"/>
+
+  <!--
+    Figure composition:
+      ● Head  – filled circle, centered above the checkmark elbow
+      | Neck  – short connector
+      ✓ Body  – thick rounded checkmark (left arm down, right arm raised)
+
+    The elbow of the checkmark sits directly below the head,
+    making the figure read as a person in a "task complete" pose.
+  -->
+
+  <!-- Head -->
+  <circle cx="218" cy="108" r="72" fill="white"/>
+
+  <!-- Neck -->
+  <line
+    x1="218" y1="180"
+    x2="218" y2="242"
+    stroke="white"
+    stroke-width="52"
+    stroke-linecap="round"
+  />
+
+  <!-- Body / arms (checkmark) -->
+  <path
+    d="M82 316 L218 442 L446 202"
+    stroke="white"
+    stroke-width="60"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
