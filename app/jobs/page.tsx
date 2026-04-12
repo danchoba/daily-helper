@@ -18,7 +18,8 @@ const PAGE_SIZE = 12
 
 export default async function JobsPage({ searchParams }: PageProps) {
   const session = await getServerSession()
-  const { category, area, sort = 'urgency', q, page } = await searchParams
+  const resolvedParams = await searchParams
+  const { category, area, sort = 'urgency', q, page } = resolvedParams
   const currentPage = Math.max(1, parseInt(page || '1', 10))
 
   const orderBy = (() => {
@@ -116,7 +117,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
               pageSize={PAGE_SIZE}
               currentPage={currentPage}
               basePath="/jobs"
-              searchParams={searchParams as Record<string, string>}
+              searchParams={resolvedParams}
             />
           </>
         )}

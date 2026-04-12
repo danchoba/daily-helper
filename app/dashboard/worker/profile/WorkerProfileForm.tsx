@@ -180,6 +180,7 @@ export function WorkerProfileForm({ profile, phoneNumber, serviceOptions }: Prop
         <div className="flex flex-wrap gap-3">
           {form.portfolioUrls.map(url => (
             <div key={url} className="group relative h-24 w-24 overflow-hidden rounded-xl border border-earth-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt="Portfolio" className="h-full w-full object-cover" />
               <button
                 type="button"

@@ -18,7 +18,8 @@ const PAGE_SIZE = 12
 export default async function WorkerBrowseJobsPage({ searchParams }: PageProps) {
   const session = await getServerSession()
   if (!session || session.role !== 'WORKER') redirect('/login')
-  const { category, area, q, page } = await searchParams
+  const resolvedParams = await searchParams
+  const { category, area, q, page } = resolvedParams
   const currentPage = Math.max(1, parseInt(page || '1', 10))
 
   const where = {
@@ -92,7 +93,7 @@ export default async function WorkerBrowseJobsPage({ searchParams }: PageProps) 
             pageSize={PAGE_SIZE}
             currentPage={currentPage}
             basePath="/dashboard/worker/jobs"
-            searchParams={searchParams as unknown as Record<string, string>}
+            searchParams={resolvedParams}
           />
         </>
       )}
